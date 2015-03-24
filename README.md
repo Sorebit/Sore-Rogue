@@ -1,4 +1,6 @@
 # Sore-Rogue
-OOP Learning through rogue making
-No copyrights whatsoever
-# yah :pizza:
+OOP Learning through rogue making.
+
+No copyrights whatsoever.
+
+yah.
