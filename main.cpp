@@ -1,10 +1,3 @@
-//TODO:
-//Zmniejszyć ilość kolorów
-//Losowe plansze
-//Moby
-//Walka z mobami
-//Itemsy
-
 #include <ncurses.h>
 #include <unistd.h>
 #include <cstdlib>
@@ -13,6 +6,11 @@
 #include <queue>
 #include <string>
 #include <cmath>
+
+int map_mx, map_maxy;
+std::vector <char> tileset[] = {{'?'}, {'.'}, {'"'}, {':'}, {'.'}, {'='}, {'#'}, {'~', '-'}, {'.'}, {'@'}, {'&'}, {'o'}, {'+', '.'}, {'1'}}; 
+
+struct Disp { int h, w; } display;
 
 struct Character
 {
@@ -24,11 +22,7 @@ struct Character
 	int gold, keys; 
 } rogue;
 
-struct Tile
-{ 
-	int door_open, tile; 
-	bool seen, inView; 
-} map[200][200];
+struct Tile { int door_open, tile; bool seen, inView; } map[200][200];
 
 enum Tiles 
 {
@@ -68,10 +62,6 @@ enum Tiles
 	uitext = 55,
 };
 
-int map_mx, map_maxy;
-std::vector <char> tileset[] = {{'?'}, {'.'}, {'"'}, {':'}, {'.'}, {'='}, {'#'}, {'~', '-'}, {'.'}, {'@'}, {'&'}, {'o'}, {'+', '.'}, {'1'}}; 
-
-struct Disp { int h, w; } display;
 
 enum keyboard
 {
@@ -109,6 +99,25 @@ enum Colors
 	COLOR_UI2 = 52,
 	COLOR_BUI2 = 53,
 };
+
+void wininit()
+{
+	if(!initscr()) 
+	{
+		printf("Error initializing screen.\n");
+		exit(1);
+	}
+	if(!has_colors()) 
+	{
+		printf("This terminal does not support colours.\n");
+		exit(1);
+	}
+	if(!can_change_color())
+	{
+		printf("Your terminal needs to support 256 colors.\n");
+		exit(1);
+	}
+}
 
 void graphics_init()
 {
@@ -191,11 +200,11 @@ bool isPath(int x, int y)
 {
 	if(x < 0 || x > map_mx - 1 || y < 0 || y > display.h - 1)
 		return false;
-	if(map[y][x].tile == path || map[y][x].tile == grass || map[y][x].tile == gold ||  map[y][x].tile == key || map[y][x].tile == edge || map[y][x].tile == bridge)
-		return true;
-	if(map[y][x].tile == door && (rogue.keys || map[y][x].door_open) )
-		return true;
-	return false;
+	else if(map[y][x].tile == zero || map[y][x].tile == wall || map[y][x].tile == pit || map[y][x].tile == water)
+		return false;
+	else if(map[y][x].tile == door)
+		return (rogue.keys || map[y][x].door_open);
+	return true;
 }
 
 int getMovement()
@@ -243,91 +252,7 @@ void rect(int y, int x, int h, int w, int t1, int t2, bool corners = true, int t
 			map[y][x].tile = map[y][x + w - 1].tile = map[y + h - 1][x].tile = map[y + h - 1][x + w - 1].tile = t3;
 	}
 
-/*void test_map()
-{
-	rogue.y = 21;
-	rogue.x = 48;
-	rogue.keys = 0;
-	rogue.level = 6;
-	rogue.exp = 65;
-	rogue.nlvl = 100;
-	rogue.strength = 13;
-	rogue.armor = 8;
-	rogue.maxhealth = 10;
-	rogue.health = 5; 
-	rogue.nutr = 6;
-	rogue.maxnutr = 15;
-	rogue.gold = 657;
-	rogue.depth = 5;
-
-	//komora testowa 1
-	rect(8, 10, 15, 30, path, wall);
-
-	//komora testowa 2
-	rect(8, 45, 15, 30, path, wall);
-	//komora testowa 3
-	rect(25, 45, 15, 30, path, wall);
-	rect(28, 46, 11, 23, edge, edge);
-	rect(29, 46, 10, 22, pit, pit);
-	rect(28, 51, 4, 1, bridge, bridge);
-	rect(28, 55, 4, 1, bridge, bridge);
-	rect(31, 51, 1, 5, bridge, bridge);
-	rect(31, 53, 4, 1, bridge, bridge);
-	rect(35, 60, 3, 1, bridge, bridge);
-	rect(35, 53, 1, 16, bridge, bridge);
-	rect(37, 61, 1, 8, bridge, bridge);
-	//komora testowa 4
-	rect(25, 80, 15, 30, path, wall);
-
-	//przejscie 1 do 2
-	rect(13, 39, 5, 7, path, wall);
-	rect(14, 39, 3, 1, path, path);
-
-	//przejscie 2 do 3
-	rect(22, 55, 4, 10, path, wall);
-	rect(22, 56, 1, 8, path, path);
-	rect(25, 56, 1, 8, path, path);
-
-	//przejscie z 3 do 4
-	rect(30, 74, 5, 7, path, wall);
-
-	//staw
-	rect(9, 12, 7, 12, coast, coast, false, path);
-	rect(10, 13, 5, 10, water, water, false, coast);
-	rect(10, 59, 7, 14, grass, grass, false, path);
-	map[20][33].tile = map[20][34].tile = map[19][33].tile = map[20][32].tile = gold;
-	map[15][60].tile = map[14][59].tile = map[12][68].tile = map[16][65].tile = grass;
-
-	//klucze i drzwi
-	map[19][28].tile = map[32][77].tile = map[37][70].tile = key;
-	map[32][74].tile = map[15][45].tile = map[32][80].tile = door;
-}*/
-
-void yray(int x, int y1, int y2)
-{
-	int dir = 1 - 2 * (y1 > y2);
-	for(int y = y1; y*dir <= y2*dir; y += dir)
-	{
-		map[y][x].seen = true;
-		map[y][x].inView = true;
-		if(map[y][x].tile == wall || map[y][x].tile == door)
-			break;
-	}
-}
-
-void xray(int x1, int x2, int y)
-{
-	int dir = 1 - 2 * (x1 > x2);
-	for(int x = x1; x*dir <= x2*dir; x += dir)
-	{
-		map[y][x].seen = true;
-		map[y][x].inView = true;
-		if(map[y][x].tile == wall || map[y][x].tile == door)
-			break;
-	}
-}
-
-void dray(float x1, float y1, float x2, float y2)
+void ray(float x1, float y1, float x2, float y2)
 {
 	std::vector < std::pair <int, int> > q;
 	bool swx = false;
@@ -351,9 +276,9 @@ void dray(float x1, float y1, float x2, float y2)
 	const int ystep = (y1 < y2) ? 1 : -1;
 	int y = (int)y1;
 
-	const int maxX = (int)x2;
+	const int _maxX = (int)x2;
 
-	for(int x = (int)x1; x < maxX; x++)
+	for(int x = (int)x1; x < _maxX; x++)
 	{
 		if(steep)
 		{
@@ -363,9 +288,9 @@ void dray(float x1, float y1, float x2, float y2)
 			{
 				map[x][y].seen = true;
 				map[x][y].inView = true;
+				if(map[x][y].tile == wall || map[x][y].tile == door)
+					return;
 			}
-			if( (map[x][y].tile == wall || map[x][y].tile == door) && !swx )
-				return;
 		}
 		else
 		{
@@ -375,10 +300,9 @@ void dray(float x1, float y1, float x2, float y2)
 			{
 				map[y][x].seen = true;
 				map[y][x].inView = true;
+				if(map[y][x].tile == wall || map[y][x].tile == door)
+					return;
 			}
-			
-			if( (map[y][x].tile == wall || map[y][x].tile == door) && !swx )
-				return;
 		}
 		
 		error -= dy;
@@ -399,16 +323,6 @@ void dray(float x1, float y1, float x2, float y2)
 		if(map[qy][qx].tile == wall || map[qy][qx].tile == door)
 			return;
 	}
-}
-
-void ray(int x1, int y1, int x2, int y2)
-{
-	if(x1 == x2)
-		yray(x1, y1, y2);
-	else if(y1 == y2)
-		xray(x1, x2, y2);
-	else
-		dray(x1, y1, x2, y2);
 }
 
 void entities()
@@ -533,10 +447,10 @@ void ui()
 	attron(COLOR_PAIR(uitext));
 
 	std::string s = "Str: " + std::to_string(rogue.strength) + " Armor: " + std::to_string(rogue.armor);
-	mvprintw(4, (22 - s.length() ) / 2, "%s",  s.c_str());
+	mvprintw(4, 2 + (22 - s.length() ) / 2, "%s",  s.c_str());
 
 	s = "Gold: " + std::to_string(rogue.gold) + " Keys: " + std::to_string(rogue.keys);
-	mvprintw(5, (22 - s.length() ) / 2, "%s",  s.c_str());
+	mvprintw(5, 2 + (22 - s.length() ) / 2, "%s",  s.c_str());
 	
 	attron(A_BOLD);
 	attron(COLOR_PAIR(text));
@@ -546,46 +460,91 @@ void ui()
 }
 
 void lighting_test()
-	{
-		rogue.y = 20;
-		rogue.x = 40;
-		
-		rect(10, 20, 23, 46, path, wall);
-		rect(13, 30, 3, 6, zero, wall);
-		rect(13, 50, 3, 6, zero, wall);
-		rect(20, 30, 3, 6, zero, wall);
-		rect(20, 50, 3, 6, zero, wall);
-		rect(27, 30, 3, 6, zero, wall);
-		rect(27, 50, 3, 6, zero, wall);
-		return;
-	}
+{
+	rogue.y = 21;
+	rogue.x = 43;
+	rect(10, 20, 23, 47, path, wall);
+	rect(13, 30, 3, 6, zero, wall);
+	rect(13, 51, 3, 6, zero, wall);
+	rect(20, 30, 3, 6, zero, wall);
+	rect(20, 51, 3, 6, zero, wall);
+	rect(27, 30, 3, 6, zero, wall);
+	rect(27, 51, 3, 6, zero, wall);
+	return;
+}
+
+void test_map()
+{
+	rogue.y = 21;
+	rogue.x = 48;
+	rogue.keys = 0;
+	rogue.level = 6;
+	rogue.exp = 65;
+	rogue.nlvl = 100;
+	rogue.strength = 13;
+	rogue.armor = 8;
+	rogue.maxhealth = 10;
+	rogue.health = 5; 
+	rogue.nutr = 6;
+	rogue.maxnutr = 15;
+	rogue.gold = 657;
+	rogue.depth = 5;
+
+	//komora testowa 1
+	rect(8, 10, 15, 30, path, wall);
+
+	//komora testowa 2
+	rect(8, 45, 15, 30, path, wall);
+	//komora testowa 3
+	rect(25, 45, 15, 30, path, wall);
+	rect(28, 46, 11, 23, edge, edge);
+	rect(29, 46, 10, 22, pit, pit);
+	rect(28, 51, 4, 1, bridge, bridge);
+	rect(28, 55, 4, 1, bridge, bridge);
+	rect(31, 51, 1, 5, bridge, bridge);
+	rect(31, 53, 4, 1, bridge, bridge);
+	rect(35, 60, 3, 1, bridge, bridge);
+	rect(35, 53, 1, 16, bridge, bridge);
+	rect(37, 61, 1, 8, bridge, bridge);
+	//komora testowa 4
+	rect(25, 80, 15, 30, path, wall);
+
+	//przejscie 1 do 2
+	rect(13, 39, 5, 7, path, wall);
+	rect(14, 39, 3, 1, path, path);
+
+	//przejscie 2 do 3
+	rect(22, 55, 4, 10, path, wall);
+	rect(22, 56, 1, 8, path, path);
+	rect(25, 56, 1, 8, path, path);
+
+	//przejscie z 3 do 4
+	rect(30, 74, 5, 7, path, wall);
+
+	//staw
+	rect(9, 12, 7, 12, coast, coast, false, path);
+	rect(10, 13, 5, 10, water, water, false, coast);
+	rect(10, 59, 7, 14, grass, grass, false, path);
+	map[20][33].tile = map[20][34].tile = map[19][33].tile = map[20][32].tile = gold;
+	map[15][60].tile = map[14][59].tile = map[12][68].tile = map[16][65].tile = grass;
+
+	//klucze i drzwi
+	map[19][28].tile = map[32][77].tile = map[37][70].tile = key;
+	map[32][74].tile = map[15][45].tile = map[32][80].tile = door;
+}
 
 int main()
 {	
-	if(!initscr()) 
-	{
-		printf("Error initializing screen.\n");
-		exit(1);
-	}
-	if(!has_colors()) 
-	{
-		printf("This terminal does not support colours.\n");
-		exit(1);
-	}
-	if(!can_change_color())
-	{
-		printf("Your terminal needs to support 256 colors\n");
-		exit(1);
-	}
+	wininit();
 	srand(time(NULL));
 	getmaxyx(stdscr, display.h, display.w);
 	map_mx = display.w - 25;
 	keypad(stdscr, true);
 	graphics_init();
 
-	//test_map();
-	lighting_test();
-	//Game loop
+	test_map();
+	//lighting_test();
+	
 	printw("Press any key to start");
 	while(getMovement())
 	{
