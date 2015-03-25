@@ -72,79 +72,6 @@ void rect(int y, int x, int h, int w, int t1, int t2, bool corners = true, int t
 			map[y][x].tile = map[y][x + w - 1].tile = map[y + h - 1][x].tile = map[y + h - 1][x + w - 1].tile = t3;
 	}
 
-void ray(float x1, float y1, float x2, float y2)
-{
-	std::vector < std::pair <int, int> > q;
-	bool swx = false;
-	const bool steep = (fabs(y2 - y1) > fabs(x2 - x1));
-	if(steep)
-	{
-		std::swap(x1, y1);
-		std::swap(x2, y2);
-	}
-	if(x1 > x2)
-	{
-		swx = true;
-		std::swap(x1, x2);
-		std::swap(y1, y2);
-	}
-
-	const float dx = x2 - x1;
-	const float dy = fabs(y2 - y1);
-
-	float error = dx / 2.0f;
-	const int ystep = (y1 < y2) ? 1 : -1;
-	int y = (int)y1;
-
-	const int _maxX = (int)x2;
-
-	for(int x = (int)x1; x < _maxX; x++)
-	{
-		if(steep)
-		{
-			if(swx)
-				q.push_back({x, y});
-			else
-			{
-				map[x][y].seen = true;
-				map[x][y].inView = true;
-				if(map[x][y].tile == wall || map[x][y].tile == door)
-					return;
-			}
-		}
-		else
-		{
-			if(swx)
-				q.push_back({y, x});
-			else
-			{
-				map[y][x].seen = true;
-				map[y][x].inView = true;
-				if(map[y][x].tile == wall || map[y][x].tile == door)
-					return;
-			}
-		}
-		
-		error -= dy;
-		if(error < 0)
-		{
-			y += ystep;
-			error += dx;
-		}
-	}
-	int qx, qy;
-	while(!q.empty())
-	{
-		qy = q[q.size()-1].first;
-		qx = q[q.size()-1].second;
-		q.pop_back();
-		map[qy][qx].seen = true;
-		map[qy][qx].inView = true;
-		if(map[qy][qx].tile == wall || map[qy][qx].tile == door)
-			return;
-	}
-}
-
 void entities()
 {
 	switch(map[rogue.y][rogue.x].tile)
@@ -194,7 +121,7 @@ void render()
 		{
 			if(!i || i == display.h - 1 || !j || j == map_mx - 1)
 			{
-				ray(rogue.x, rogue.y, j, i);
+				ray(map, rogue.x, rogue.y, j, i);
 			}
 		}
 	}
