@@ -1,5 +1,8 @@
 #include "Architect.h"
 
+// Actually not architect at the moment
+// Hard-coded test levels
+
 void rect(Tile tmap[][200], int y, int x, int h, int w, int t1, int t2, bool corners, int t3)
 {
 	for(int i = y; i < y + h; i++)
