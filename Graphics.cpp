@@ -1,6 +1,8 @@
 #include "Graphics.h"
 #include <ncurses.h>
 #include <cstdlib>
+#include <string>
+#include <cmath>
 
 void wininit()
 {
@@ -96,4 +98,59 @@ void graphics_init()
 	//Cursor and invisible input
 	curs_set(0);
 	noecho();
+}
+
+void ui(Disp display, Character rogue)
+{
+	attron(A_BOLD);
+	attron(COLOR_PAIR(player));
+	mvprintw(0, 0, "@");
+	attron(COLOR_PAIR(text));
+	mvprintw(0, 1, ": You, Level %d       ", rogue.level);
+	attroff(A_BOLD);
+
+	std::string sStats[3] = {"         Health         ", "        Nutrition       ", "       Experience       "};
+
+	double hea = std::floor((double)rogue.health/rogue.maxhealth * 24);
+	double nut = std::floor((double)rogue.nutr/rogue.maxnutr * 24);
+	double ex = std::floor((double)rogue.exp/rogue.nlvl * 24);
+
+	double dStats[3] = {hea, nut, ex};
+
+	for(int bar = 0; bar < 3; bar++)
+	{
+		for(unsigned int i = 0; i < 24; i++)
+		{
+			if(i <= dStats[bar]) 
+				attron( COLOR_PAIR(ui1 + (bar % 2) * 3) );
+			else 
+				attron( COLOR_PAIR(bui1 + (bar % 2) * 3) );
+			mvprintw(bar + 1, i, "%c", sStats[bar][i]);
+			if(bar == 2)
+			{
+				attron(A_BOLD);
+				if(ex > 0) 
+					attron( COLOR_PAIR(ui1) );
+				mvprintw(bar + 1, 0, "%d", rogue.level);
+				if(ex < 21)
+					attron( COLOR_PAIR(bui1) );
+				mvprintw(bar + 1, 24 - (rogue.level > 10) - 1, "%d", rogue.level + 1);
+				attroff(A_BOLD);
+			}
+		}
+	}
+
+	attron(COLOR_PAIR(uitext));
+
+	std::string s = "Str: " + std::to_string(rogue.strength) + " Armor: " + std::to_string(rogue.armor);
+	mvprintw(4, 2 + (22 - s.length() ) / 2, "%s",  s.c_str());
+
+	s = "Gold: " + std::to_string(rogue.gold) + " Keys: " + std::to_string(rogue.keys);
+	mvprintw(5, 2 + (22 - s.length() ) / 2, "%s",  s.c_str());
+	
+	attron(A_BOLD);
+	attron(COLOR_PAIR(text));
+	s = "-- Depth: " + std::to_string(rogue.depth) + " --";
+	mvprintw(display.h - 1, (22 - s.length() ) / 2, "%s", s.c_str());
+	attroff(A_BOLD);
 }

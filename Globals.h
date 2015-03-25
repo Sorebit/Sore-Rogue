@@ -1,3 +1,21 @@
+struct Character
+{
+	int x, y, depth; 
+	int health, maxhealth; 
+	int strength, armor; 
+	int exp, level, nlvl; 
+	int nutr, maxnutr;
+	int gold, keys; 
+};
+
+struct Tile
+{ 
+	int door_open, tile; 
+	bool seen, inView; 
+};
+
+struct Disp { int h, w; };
+
 enum keyboard
 {
 	down = 258,
@@ -72,15 +90,3 @@ enum Colors
 	COLOR_UI2 = 52,
 	COLOR_BUI2 = 53,
 };
-
-struct Character
-{
-	int x, y, depth; 
-	int health, maxhealth; 
-	int strength, armor; 
-	int exp, level, nlvl; 
-	int nutr, maxnutr;
-	int gold, keys; 
-};
-
-struct Disp { int h, w; };
