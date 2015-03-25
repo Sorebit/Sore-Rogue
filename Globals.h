@@ -1,3 +1,10 @@
+#ifndef GLOBALS_H
+#define GLOBALS_H
+
+#include <vector>
+
+extern std::vector <char> tileset[];
+
 struct Character
 {
 	int x, y, depth; 
@@ -14,7 +21,11 @@ struct Tile
 	bool seen, inView; 
 };
 
-struct Disp { int h, w; };
+struct Disp
+{ 
+	int h, w; 
+	int map_mx, map_my;
+};
 
 enum keyboard
 {
@@ -90,3 +101,5 @@ enum Colors
 	COLOR_UI2 = 52,
 	COLOR_BUI2 = 53,
 };
+
+#endif

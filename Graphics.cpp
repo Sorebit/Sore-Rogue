@@ -228,3 +228,60 @@ void ray(Tile map[][200], float x1, float y1, float x2, float y2)
 			return;
 	}
 }
+
+void render_player(Tile map[][200], Character rogue)
+{
+	if(map[rogue.y][rogue.x].tile == edge)
+		init_pair(player, COLOR_WHITE, COLOR_BLUE);
+	else if(map[rogue.y][rogue.x].tile == door || map[rogue.y][rogue.x].tile == bridge)
+		init_pair(player, COLOR_WHITE, COLOR_BROWN);
+	else
+		init_pair(player, COLOR_WHITE, COLOR_DARK_BLUE);
+	attron(COLOR_PAIR(player));
+	mvprintw(rogue.y, rogue.x + 25, "@");
+}
+
+void render(Disp display, Tile map[][200], Character rogue)
+{
+	for(int i = 0; i < display.h; i++)
+	{
+		for(int j = 0; j < display.map_mx; j++)
+		{
+			map[i][j].inView = false;
+		}
+	}
+	for(int i = 0; i < display.h; i++)
+	{
+		for(int j = 0; j < display.map_mx; j++)
+		{
+			if(!i || i == display.h - 1 || !j || j == display.map_mx - 1)
+			{
+				ray(map, rogue.x, rogue.y, j, i);
+			}
+		}
+	}
+	for(int i = 0; i < display.h; i++)
+	{
+		for(int j = 0; j < display.map_mx; j++)
+		{
+			if(!map[i][j].tile)
+				continue;
+			if(!map[i][j].seen)
+				continue;
+			if(map[i][j].inView)
+				attron( COLOR_PAIR(map[i][j].tile) );
+			else
+				attron(COLOR_PAIR(map[i][j].tile + 20));
+			switch(map[i][j].tile)
+			{
+				case door:
+					mvprintw(i, j + 25, "%c", tileset[door][ map[i][j].door_open ]);
+					break;
+				default:
+					mvprintw(i, j + 25, "%c", tileset[ map[i][j].tile ][rand() % tileset[ map[i][j].tile ].size() ]);
+			}
+			
+		}
+	}
+	render_player(map, rogue);
+}
