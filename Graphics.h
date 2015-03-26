@@ -5,9 +5,9 @@
 
 void wininit();
 void graphics_init();
-void ui(Disp display, Character rogue);
+void ui(Character rogue);
 void ray(Tile map[][200], float x1, float y1, float x2, float y2);
 void render_player(Tile map[][200], Character rogue);
-void render(Disp display, Tile map[][200], Character rogue);
+void render(Tile map[][200], Character rogue);
 
 #endif

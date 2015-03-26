@@ -24,12 +24,6 @@ struct Tile
 	bool seen, inView; 
 };
 
-struct Disp
-{ 
-	int h, w; 
-	int map_mx, map_my;
-};
-
 enum keyboard
 {
 	down = 258,

@@ -15,13 +15,11 @@ int maxy, maxx, comp_count = 1, max_lake, max_lake_size, comp[200][200], count[2
 
 Character rogue;
 
-Disp display;
-
 Tile map[200][200];
 
 bool isPath(int x, int y)
 {
-	if(x < 0 || x > display.map_mx - 1 || y < 0 || y > display.h - 1)
+	if(x < 0 || x > maxx - 1 || y < 0 || y > maxy - 1)
 		return false;
 	else if(map[y][x].tile == zero || map[y][x].tile == wall || map[y][x].tile == pit || map[y][x].tile == water)
 		return false;
@@ -84,23 +82,19 @@ int main()
 {	
 	wininit();
 	srand(time(NULL));
-	getmaxyx(stdscr, display.h, display.w);
-	display.map_mx = display.w - 25;
-	maxx = display.map_mx;
-	maxy = display.h;
 	keypad(stdscr, true);
+	getmaxyx(stdscr, maxy, maxx);
+	maxx -= 25;
 	graphics_init();
 
-	//test_map(map, rogue);
-	//lighting_test(map, rogue);
 	generate_dungeon(map, rogue);
 	
-	printw("Press any key to start");
+	printw("Press any key to start\nQ to quit anytime.");
 	while(getMovement())
 	{
 		entities();
-		render(display, map, rogue);
-		ui(display, rogue);
+		render(map, rogue);
+		ui(rogue);
 	}
 
 	endwin();

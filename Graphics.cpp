@@ -101,7 +101,7 @@ void graphics_init()
 	noecho();
 }
 
-void ui(Disp display, Character rogue)
+void ui(Character rogue)
 {
 	attron(A_BOLD);
 	attron(COLOR_PAIR(player));
@@ -152,7 +152,7 @@ void ui(Disp display, Character rogue)
 	attron(A_BOLD);
 	attron(COLOR_PAIR(text));
 	s = "-- Depth: " + std::to_string(rogue.depth) + " --";
-	mvprintw(display.h - 1, (22 - s.length() ) / 2, "%s", s.c_str());
+	mvprintw(maxy - 1, (22 - s.length() ) / 2, "%s", s.c_str());
 	attroff(A_BOLD);
 }
 
@@ -241,28 +241,28 @@ void render_player(Tile map[][200], Character rogue)
 	mvprintw(rogue.y, rogue.x + 25, "@");
 }
 
-void render(Disp display, Tile map[][200], Character rogue)
+void render(Tile map[][200], Character rogue)
 {
-	for(int i = 0; i < display.h; i++)
+	for(int i = 0; i < maxy; i++)
 	{
-		for(int j = 0; j < display.map_mx; j++)
+		for(int j = 0; j < maxx; j++)
 		{
 			map[i][j].inView = false;
 		}
 	}
-	for(int i = 0; i < display.h; i++)
+	for(int i = 0; i < maxy; i++)
 	{
-		for(int j = 0; j < display.map_mx; j++)
+		for(int j = 0; j < maxx; j++)
 		{
-			if(!i || i == display.h - 1 || !j || j == display.map_mx - 1)
+			if(!i || i == maxy - 1 || !j || j == maxx - 1)
 			{
 				ray(map, rogue.x, rogue.y, j, i);
 			}
 		}
 	}
-	for(int i = 0; i < display.h; i++)
+	for(int i = 0; i < maxy; i++)
 	{
-		for(int j = 0; j < display.map_mx; j++)
+		for(int j = 0; j < maxx; j++)
 		{
 			if(!map[i][j].tile)
 				continue;
