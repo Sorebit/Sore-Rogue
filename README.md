@@ -1,5 +1,5 @@
 # Sore-Rogue
-OOP Learning through rogue making.
+Learning through rogue making.
 
 Ncurses library must be installed to run the game.
 
