@@ -5,6 +5,9 @@
 
 extern std::vector <char> tileset[];
 
+extern int maxy, maxx, comp_count, max_lake, max_lake_size, comp[200][200], count[200];
+
+
 struct Character
 {
 	int x, y, depth; 

@@ -3,8 +3,14 @@
 
 #include "Globals.h"
 
-void rect(Tile map[][200], int y, int x, int h, int w, int t1, int t2, bool corners = true, int t3 = 0);
-void lighting_test(Tile tmap[][200], Character & crogue);
-void test_map(Tile tmap[][200], Character & crogue);
+void init_map(Tile map[][200]);
+int count_neighbours(int y, int x, Tile map[][200]);
+void step(Tile map[][200]);
+void dfs(int y, int x, Tile map[][200]);
+void fill(Tile map[][200]);
+void borders(Tile map[][200]);
+void generate_lake(Tile map[][200]);
+void position_player(Tile map[][200], Character & rogue);
+void generate_dungeon(Tile map[][200], Character & rogue);
 
 #endif

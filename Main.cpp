@@ -11,6 +11,8 @@
 
 std::vector <char> tileset[] = {{'?'}, {'.'}, {'"'}, {':'}, {'.'}, {'='}, {'#'}, {'~', '-'}, {'.'}, {'@'}, {'&'}, {'o'}, {'+', '.'}, {'1'}}; 
 
+int maxy, maxx, comp_count = 1, max_lake, max_lake_size, comp[200][200], count[200];
+
 Character rogue;
 
 Disp display;
@@ -84,11 +86,14 @@ int main()
 	srand(time(NULL));
 	getmaxyx(stdscr, display.h, display.w);
 	display.map_mx = display.w - 25;
+	maxx = display.map_mx;
+	maxy = display.h;
 	keypad(stdscr, true);
 	graphics_init();
 
-	test_map(map, rogue);
+	//test_map(map, rogue);
 	//lighting_test(map, rogue);
+	generate_dungeon(map, rogue);
 	
 	printw("Press any key to start");
 	while(getMovement())
