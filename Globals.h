@@ -50,9 +50,8 @@ enum Tiles
 	gold = 11,
 	door = 12,
 	key = 13,
-	stairsUp = 14,
-	stairsDown = 15,
-	text = 16,
+	stairs = 14,
+	text = 15,
 	//Out of view
 	opath = 21,
 	ograss = 22,
@@ -65,8 +64,7 @@ enum Tiles
 	ogold = 31,
 	odoor = 32,
 	okey = 33,
-	ostairsUp = 34,
-	ostairsDown = 35,
+	ostairs = 34,
 	//UI
 	ui1 = 50,
 	bui1 = 51,

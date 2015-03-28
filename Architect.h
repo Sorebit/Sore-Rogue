@@ -10,7 +10,7 @@ void dfs(int y, int x, Tile map[][200]);
 void fill(Tile map[][200]);
 void borders(Tile map[][200]);
 void generate_lake(Tile map[][200]);
-void stairs(Tile map[][200], Character & rogue);
+void put_stairs(Tile map[][200], Character & rogue);
 void generate_dungeon(Tile map[][200], Character & rogue);
 
 #endif

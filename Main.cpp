@@ -10,7 +10,7 @@
 #include "Architect.h"
 
 std::vector <char> tileset[] = {{'?'}, {'.'}, {'"'}, {':'}, {'.'}, {'='}, {'#'}, {'~', '-'}, 
-								{'.'}, {'@'}, {'&'}, {'o'}, {'+', '.'}, {'1'}, {'v'}, {'^'}}; 
+								{'.'}, {'@'}, {'&'}, {'o'}, {'+', '.'}, {'1'}, {'^'}}; 
 
 int maxy, maxx, comp_count = 1, max_lake, max_lake_size, comp[200][200], count[200];
 
@@ -76,7 +76,7 @@ void entities()
 				rogue.keys--;
 			}
 			break;
-		case stairsDown:
+		case stairs:
 			clear();
 			generate_dungeon(map, rogue);
 			break;

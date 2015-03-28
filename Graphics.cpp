@@ -5,23 +5,24 @@
 #include <cmath>
 #include <vector>
 
-void wininit()
+int wininit()
 {
 	if(!initscr()) 
 	{
 		printf("Error initializing screen.\n");
-		exit(1);
+		return 1;
 	}
 	if(!has_colors()) 
 	{
 		printf("This terminal does not support colours.\n");
-		exit(1);
+		return 2;
 	}
 	if(!can_change_color())
 	{
 		printf("Your terminal needs to support 256 colors.\n");
-		exit(1);
+		return 3;
 	}
+	return 0;
 }
 
 void graphics_init()
@@ -66,8 +67,7 @@ void graphics_init()
 	init_pair(coast, COLOR_WHITE, COLOR_LIGHT_WATER);
 	init_pair(door, COLOR_LIGHT_BROWN, COLOR_BROWN);
 	init_pair(key, COLOR_GOLD, COLOR_DARK_BLUE);
-	init_pair(stairsUp, COLOR_GOLD, COLOR_DARK_BLUE);
-	init_pair(stairsDown, COLOR_GOLD, COLOR_DARK_BLUE);
+	init_pair(stairs, COLOR_GOLD, COLOR_DARK_BLUE);
 
 	init_pair(opath, COLOR_OOV_GREY, COLOR_OOV_BLUE);
 	init_pair(ograss, COLOR_OOV_LIGHT_GREEN, COLOR_OOV_BLUE);
@@ -78,8 +78,7 @@ void graphics_init()
 	init_pair(ocoast, COLOR_GREY, COLOR_OOV_LIGHT_WATER);
 	init_pair(odoor, COLOR_OOV_LIGHT_BROWN, COLOR_OOV_BROWN);
 	init_pair(okey, COLOR_OOV_GOLD, COLOR_OOV_BLUE);
-	init_pair(ostairsUp, COLOR_OOV_GOLD, COLOR_OOV_BLUE);
-	init_pair(ostairsDown, COLOR_OOV_GOLD, COLOR_OOV_BLUE);
+	init_pair(ostairs, COLOR_OOV_GOLD, COLOR_OOV_BLUE);
 
 	//Mobs
 	init_pair(player, COLOR_WHITE, COLOR_DARK_BLUE);
