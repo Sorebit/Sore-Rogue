@@ -104,6 +104,26 @@ void graphics_init()
 	noecho();
 }
 
+void show_equipment(Character & rogue)
+{
+	// NOTE: Item name can't be longer than 20 chars
+	// An item class?
+	attron(A_BOLD);
+	attron(COLOR_PAIR(text));
+	mvprintw(6, 0, "        Equipment       ");
+	attroff(A_BOLD);
+
+	attron(COLOR_PAIR(uitext));
+	std::string s = "Silver: " + std::to_string(rogue.silver);
+	mvprintw(7, 2 + (22 - s.length() ) / 2, "%s",  s.c_str());
+	mvprintw(7, 0, "-");
+	mvprintw(7, 23, "-");
+
+	mvprintw(8, 0, "-      Canned meat     -");
+	mvprintw(9, 0, "-       Rusty key      -");
+
+}
+
 void ui(Character rogue)
 {
 	attron(A_BOLD);
@@ -148,15 +168,15 @@ void ui(Character rogue)
 
 	std::string s = "Str: " + std::to_string(rogue.strength) + " Armor: " + std::to_string(rogue.armor);
 	mvprintw(4, 2 + (22 - s.length() ) / 2, "%s",  s.c_str());
-
-	s = "Gold: " + std::to_string(rogue.gold) + " Keys: " + std::to_string(rogue.keys);
-	mvprintw(5, 2 + (22 - s.length() ) / 2, "%s",  s.c_str());
 	
+	show_equipment(rogue);
+
 	attron(A_BOLD);
 	attron(COLOR_PAIR(text));
 	s = "-- Depth: " + std::to_string(rogue.depth) + " --";
 	mvprintw(maxy - 1, (22 - s.length() ) / 2, "%s", s.c_str());
 	attroff(A_BOLD);
+
 }
 
 void ray(Tile map[][200], float x1, float y1, float x2, float y2)

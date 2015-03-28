@@ -10,7 +10,7 @@
 #include "Architect.h"
 
 std::vector <char> tileset[] = {{'?'}, {'.'}, {'"'}, {':'}, {'.'}, {'='}, {'#'}, {'~', '-'}, 
-								{'.'}, {'@'}, {'&'}, {'o'}, {'+', '.'}, {'1'}, {'^'}}; 
+								{'.'}, {'@'}, {'&'}, {'o'}, {'+', '.'}, {'1'}, {'\\'}}; 
 
 int cy, cx, maxy, maxx, comp_count = 1, max_lake, max_lake_size, comp[200][200], count[200];
 
@@ -66,7 +66,7 @@ void entities()
 	switch(map[rogue.y][rogue.x].tile)
 	{
 		case gold:
-			rogue.gold++;
+			rogue.silver++;
 			map[rogue.y][rogue.x].tile = path;
 			break;
 		case key:
@@ -83,6 +83,7 @@ void entities()
 		case stairs:
 			clear();
 			generate_dungeon(map, rogue);
+			rogue.depth++;
 			break;
 	}
 }
@@ -96,15 +97,19 @@ int main()
 	maxx -= 25;
 	graphics_init();
 
-	generate_dungeon(map, rogue);
-	
 	printw("Press any key to start\nQ to quit anytime.\n");
-	while(getMovement())
+	getch();
+	clear();
+
+	rogue.depth = 1;
+	generate_dungeon(map, rogue);
+
+	do
 	{
 		entities();
 		render(map, rogue);
 		ui(rogue);
-	}
+	} while(getMovement());
 
 	endwin();
 	return 0;

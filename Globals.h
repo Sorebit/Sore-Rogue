@@ -10,12 +10,13 @@ extern int cy, cx, maxy, maxx, comp_count, max_lake, max_lake_size, comp[200][20
 
 struct Character
 {
+	char name[11];
 	int x, y, depth; 
 	int health, maxhealth; 
 	int strength, armor; 
 	int exp, level, nlvl; 
 	int nutr, maxnutr;
-	int gold, keys; 
+	int silver, keys; 
 };
 
 struct Tile

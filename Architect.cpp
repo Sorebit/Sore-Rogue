@@ -104,7 +104,7 @@ void fill(Tile map[][200])
 }
 
 
-void borders(Tile map[][200])
+void borders(Tile map[][200], int tile)
 {
 	bool fout = false;
 	for(int y = 0; y < maxy; y++)
@@ -140,7 +140,7 @@ void borders(Tile map[][200])
 						nx--;
 					}
 					if(!map[ny][nx].tile || fout)
-						map[ny][nx].tile = wall;
+						map[ny][nx].tile = tile;
 					fout = false;
 				}	
 			}
@@ -171,7 +171,7 @@ void generate_lake(Tile map[][200])
 				map[y][x].tile = 0;
 		}
 	}
-	borders(map);
+	borders(map, wall);
 }
 
 void put_stairs(Tile map[][200], Character & rogue)
@@ -232,6 +232,7 @@ void put_stairs(Tile map[][200], Character & rogue)
 	cy = mqy;
 }
 
+
 void generate_dungeon(Tile map[][200], Character & rogue)
 {
 	do 
@@ -240,5 +241,4 @@ void generate_dungeon(Tile map[][200], Character & rogue)
 	} while(max_lake_size < 1500);
 	put_stairs(map, rogue);
 }
-
 
