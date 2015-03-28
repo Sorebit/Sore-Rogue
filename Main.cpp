@@ -12,7 +12,7 @@
 std::vector <char> tileset[] = {{'?'}, {'.'}, {'"'}, {':'}, {'.'}, {'='}, {'#'}, {'~', '-'}, 
 								{'.'}, {'@'}, {'&'}, {'o'}, {'+', '.'}, {'1'}, {'^'}}; 
 
-int maxy, maxx, comp_count = 1, max_lake, max_lake_size, comp[200][200], count[200];
+int cy, cx, maxy, maxx, comp_count = 1, max_lake, max_lake_size, comp[200][200], count[200];
 
 Character rogue;
 
@@ -53,6 +53,10 @@ int getMovement()
 		if(isPath(rogue.x + 1, rogue.y))
 			rogue.x++;
 		break;
+	case yucheatin:
+		map[cy][cx].seen ^= 1;
+		break;
+
 	}
 	return 1;
 }
@@ -94,7 +98,7 @@ int main()
 
 	generate_dungeon(map, rogue);
 	
-	printw("Press any key to start\nQ to quit anytime.");
+	printw("Press any key to start\nQ to quit anytime.\n");
 	while(getMovement())
 	{
 		entities();

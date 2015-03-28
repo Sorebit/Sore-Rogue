@@ -228,7 +228,8 @@ void put_stairs(Tile map[][200], Character & rogue)
 	}
 
 	map[mqy][mqx].tile = stairs;
-	map[mqy][mqx].seen = true;
+	cx = mqx;
+	cy = mqy;
 }
 
 void generate_dungeon(Tile map[][200], Character & rogue)
