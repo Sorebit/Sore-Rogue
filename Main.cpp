@@ -9,7 +9,8 @@
 #include "Graphics.h"
 #include "Architect.h"
 
-std::vector <char> tileset[] = {{'?'}, {'.'}, {'"'}, {':'}, {'.'}, {'='}, {'#'}, {'~', '-'}, {'.'}, {'@'}, {'&'}, {'o'}, {'+', '.'}, {'1'}}; 
+std::vector <char> tileset[] = {{'?'}, {'.'}, {'"'}, {':'}, {'.'}, {'='}, {'#'}, {'~', '-'}, 
+								{'.'}, {'@'}, {'&'}, {'o'}, {'+', '.'}, {'1'}, {'v'}, {'^'}}; 
 
 int maxy, maxx, comp_count = 1, max_lake, max_lake_size, comp[200][200], count[200];
 
@@ -74,6 +75,10 @@ void entities()
 				map[rogue.y][rogue.x].door_open = true;
 				rogue.keys--;
 			}
+			break;
+		case stairsDown:
+			clear();
+			generate_dungeon(map, rogue);
 			break;
 	}
 }

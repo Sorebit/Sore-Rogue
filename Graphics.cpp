@@ -66,6 +66,8 @@ void graphics_init()
 	init_pair(coast, COLOR_WHITE, COLOR_LIGHT_WATER);
 	init_pair(door, COLOR_LIGHT_BROWN, COLOR_BROWN);
 	init_pair(key, COLOR_GOLD, COLOR_DARK_BLUE);
+	init_pair(stairsUp, COLOR_GOLD, COLOR_DARK_BLUE);
+	init_pair(stairsDown, COLOR_GOLD, COLOR_DARK_BLUE);
 
 	init_pair(opath, COLOR_OOV_GREY, COLOR_OOV_BLUE);
 	init_pair(ograss, COLOR_OOV_LIGHT_GREEN, COLOR_OOV_BLUE);
@@ -76,6 +78,8 @@ void graphics_init()
 	init_pair(ocoast, COLOR_GREY, COLOR_OOV_LIGHT_WATER);
 	init_pair(odoor, COLOR_OOV_LIGHT_BROWN, COLOR_OOV_BROWN);
 	init_pair(okey, COLOR_OOV_GOLD, COLOR_OOV_BLUE);
+	init_pair(ostairsUp, COLOR_OOV_GOLD, COLOR_OOV_BLUE);
+	init_pair(ostairsDown, COLOR_OOV_GOLD, COLOR_OOV_BLUE);
 
 	//Mobs
 	init_pair(player, COLOR_WHITE, COLOR_DARK_BLUE);

@@ -14,6 +14,10 @@ void init_map(Tile map[][200])
 		for(int x = 0; x < maxx; x++)
 		{
 			comp[y][x] = 0;
+			map[y][x].seen = 0;
+			map[y][x].inView = 0;
+			map[y][x].door_open = 0;
+
 			map[y][x].tile = 0;
 			if(rand() % 100 < 55)
 				map[y][x].tile = 1;
@@ -170,26 +174,71 @@ void generate_lake(Tile map[][200])
 	borders(map);
 }
 
-void position_player(Tile map[][200], Character & rogue)
+void stairs(Tile map[][200], Character & rogue)
 {
-	int x, y;
+	int ex, ey, walls = 0;
 	while(true)
 	{
-		x = rand() % maxx;
-		y = rand() % maxy;
-		if(map[y][x].tile == path)
+		ex = rand() % maxx;
+		ey = rand() % maxy;
+		if(map[ey][ex].tile != path)
+			continue;
+		for(int i = -1; i < 2; i++)
+		{
+			for(int j = -1; j < 2; j++)
+			{
+				if(map[ey + i][ex + j].tile == wall)
+					walls++;
+			}
+		}
+		if(walls >= 5)
 			break;
+		else
+			walls = 0;
 	}
-	rogue.y = y;
-	rogue.x = x;
+	map[ey][ex].tile = stairsUp;
+	rogue.y = ey;
+	rogue.x = ex;
+	
+	int qx, qy, mqy = 0, mqx = 0, max_dist = 0;
+	walls = 0;
+
+	for(qy = 0; qy < maxy; qy++)
+	{
+		for(qx = 0; qx < maxx; qx++)
+		{
+			if(map[qy][qx].tile != path)
+				continue;
+			for(int i = -1; i < 2; i++)
+			{
+				for(int j = -1; j < 2; j++)
+				{
+					if(map[qy + i][qx + j].tile == wall)
+						walls++;
+				}
+			}
+			if(walls < 5)
+				continue;
+			if(max_dist < ( (qx-ex)*(qx-ex) + (qy-ey)*(qy-ey) ) )
+			{
+				max_dist = (qx-ex)*(qx-ex) + (qy-ey)*(qy-ey);
+				mqy = qy;
+				mqx = qx;
+			}
+		}
+	}
+
+	map[mqy][mqx].tile = stairsDown;
+	map[mqy][mqx].seen = true;
 }
 
 void generate_dungeon(Tile map[][200], Character & rogue)
 {
 	do 
 	{ 
-		generate_lake(map); 
-	} while(max_lake_size < 800);
-	position_player(map, rogue);
+		generate_lake(map);
+	} while(max_lake_size < 1500);
+	stairs(map, rogue);
 }
+
 
