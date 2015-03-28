@@ -2,8 +2,8 @@
 Learning through rogue making.
 
 Packages needed:
-..* ncurses-term
-..* ncurses lib
+* ncurses-term
+* ncurses lib
 
 Ncurses library must be installed to run the game.
 
