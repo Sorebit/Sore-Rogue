@@ -1,6 +1,4 @@
 # Sore-Rogue
-Learning through rogue making.
-
 What you will need to run the game:
 * A Linux PC
 * A 256 color terminal
