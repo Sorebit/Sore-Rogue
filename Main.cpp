@@ -12,7 +12,7 @@
 std::vector <char> tileset[] = {{'?'}, {'.'}, {'"'}, {':'}, {'.'}, {'='}, {'#'}, {'~', '-'}, 
 								{'.'}, {'@'}, {'&'}, {'o'}, {'+', '.'}, {'1'}, {'\\'}}; 
 
-int cy, cx, maxy, maxx, comp_count = 1, max_lake, max_lake_size, comp[300][300], count[300];
+int cy, cx, maxy, maxx, comp_count = 1, max_lake, max_lake_size, comp[300][300], count[300], as = 1;
 
 Character rogue;
 
@@ -27,6 +27,19 @@ bool isPath(int x, int y)
 	else if(map[y][x].tile == door)
 		return (rogue.keys || map[y][x].door_open);
 	return true;
+}
+
+void see_all()
+{
+	for(int y = 0; y < maxy; y++)
+	{
+		for(int x = 0; x < maxx; x++)
+		{
+			if(map[y][x].tile)
+				map[y][x].seen = as;
+		}
+	}
+	as ^= 1;
 }
 
 int getMovement()
@@ -53,8 +66,9 @@ int getMovement()
 		if(isPath(rogue.x + 1, rogue.y))
 			rogue.x++;
 		break;
-	case yucheatin:
-		map[cy][cx].seen ^= 1;
+	case plsstop:
+		clear();
+		see_all();
 		break;
 
 	}
@@ -102,6 +116,14 @@ int main()
 	clear();
 
 	rogue.depth = 1;
+	rogue.health = 10;
+	rogue.maxhealth = 10;
+	rogue.nutr = 10;
+	rogue.maxnutr = 10;
+	rogue.level = 1;
+	rogue.strength = 12;
+	rogue.armor = 3;
+
 	generate_dungeon(map, rogue);
 
 	do

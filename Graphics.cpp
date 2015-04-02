@@ -35,19 +35,21 @@ void graphics_init()
 	init_color(COLOR_LIGHT_GREEN, 615, 1000, 490);
 	init_color(COLOR_BROWN, 322, 78, 78);
 	init_color(COLOR_LIGHT_BROWN, 784, 560, 374);
-	init_color(COLOR_WATER, 500, 930, 1000);
-	init_color(COLOR_LIGHT_WATER, 600, 1000, 1000);
+	init_color(COLOR_WATER_BACK, 180, 243, 1000);
+	init_color(COLOR_WATER_FORE, 54, 86, 1000);
 	init_color(COLOR_GREY, 700, 700, 700);
+	init_color(COLOR_COAST, 639, 639, 1000);
 
 	init_color(COLOR_OOV_GREY, 300, 300, 370);
 	init_color(COLOR_OOV_DARK_GREY, 150, 150, 220);
 	init_color(COLOR_OOV_BLUE, 0, 0, 30);
-	init_color(COLOR_OOV_WATER, 0, 290, 350);
-	init_color(COLOR_OOV_LIGHT_WATER, 0, 440, 500);
+	init_color(COLOR_OOV_WATER_FORE, 0, 0, 800);
+	init_color(COLOR_OOV_WATER_BACK, 0, 43, 800);
 	init_color(COLOR_OOV_LIGHT_GREEN, 215, 400, 90);
 	init_color(COLOR_OOV_GOLD, 400, 400, 0);
 	init_color(COLOR_OOV_BROWN, 70, 20, 20);
 	init_color(COLOR_OOV_LIGHT_BROWN, 284, 150, 150);
+	init_color(COLOR_OOV_COAST, 389, 389, 750);
 
 	init_color(COLOR_UI1, 141, 188, 710);
 	init_color(COLOR_BUI1, 0, 0, 250);
@@ -63,7 +65,7 @@ void graphics_init()
 	init_pair(edge, COLOR_WHITE, COLOR_BLUE);
 	init_pair(bridge, COLOR_LIGHT_BROWN, COLOR_BROWN);
 	init_pair(wall, COLOR_BLACK, COLOR_WHITE);
-	init_pair(coast, COLOR_WHITE, COLOR_LIGHT_WATER);
+	init_pair(coast, COLOR_WHITE, COLOR_COAST);
 	init_pair(door, COLOR_LIGHT_BROWN, COLOR_BROWN);
 	init_pair(key, COLOR_GOLD, COLOR_DARK_BLUE);
 	init_pair(stairs, COLOR_GOLD, COLOR_DARK_BLUE);
@@ -74,7 +76,7 @@ void graphics_init()
 	init_pair(oedge, COLOR_OOV_GREY, COLOR_DARK_BLUE);
 	init_pair(obridge, COLOR_OOV_LIGHT_BROWN, COLOR_OOV_BROWN);
 	init_pair(owall, COLOR_BLACK, COLOR_OOV_GREY);
-	init_pair(ocoast, COLOR_GREY, COLOR_OOV_LIGHT_WATER);
+	init_pair(ocoast, COLOR_GREY, COLOR_OOV_COAST);
 	init_pair(odoor, COLOR_OOV_LIGHT_BROWN, COLOR_OOV_BROWN);
 	init_pair(okey, COLOR_OOV_GOLD, COLOR_OOV_BLUE);
 	init_pair(ostairs, COLOR_OOV_GOLD, COLOR_OOV_BLUE);
@@ -84,8 +86,8 @@ void graphics_init()
 	init_pair(mob, COLOR_GOLD, COLOR_DARK_BLUE);
 
 	//Fluids
-	init_pair(water, COLOR_LIGHT_WATER, COLOR_WATER);
-	init_pair(owater, COLOR_OOV_LIGHT_WATER, COLOR_OOV_WATER);
+	init_pair(water, COLOR_WATER_FORE, COLOR_WATER_BACK);
+	init_pair(owater, COLOR_OOV_WATER_FORE, COLOR_OOV_WATER_BACK);
 
 	//Other
 	init_pair(gold, COLOR_GOLD, COLOR_DARK_BLUE);
@@ -166,7 +168,7 @@ void ui(Character rogue)
 	attron(COLOR_PAIR(uitext));
 
 	std::string s = "Str: " + std::to_string(rogue.strength) + " Armor: " + std::to_string(rogue.armor);
-	mvprintw(4, 2 + (22 - s.length() ) / 2, "%s",  s.c_str());
+	mvprintw(4, 1 + (22 - s.length() ) / 2, "%s",  s.c_str());
 	
 	show_equipment(rogue);
 
@@ -257,6 +259,8 @@ void render_player(Tile map[][300], Character rogue)
 		init_pair(player, COLOR_WHITE, COLOR_BLUE);
 	else if(map[rogue.y][rogue.x].tile == door || map[rogue.y][rogue.x].tile == bridge)
 		init_pair(player, COLOR_WHITE, COLOR_BROWN);
+	else if(map[rogue.y][rogue.x].tile == coast)
+		init_pair(player, COLOR_WHITE, COLOR_COAST);
 	else
 		init_pair(player, COLOR_WHITE, COLOR_DARK_BLUE);
 	attron(COLOR_PAIR(player));
