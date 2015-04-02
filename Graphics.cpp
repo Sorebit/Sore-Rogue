@@ -5,24 +5,23 @@
 #include <cmath>
 #include <vector>
 
-int wininit()
+void wininit()
 {
 	if(!initscr()) 
 	{
 		printf("Error initializing screen.\n");
-		return 1;
+		exit(1);
 	}
 	if(!has_colors()) 
 	{
 		printf("This terminal does not support colours.\n");
-		return 2;
+		exit(1);
 	}
 	if(!can_change_color())
 	{
 		printf("Your terminal needs to support 256 colors.\n");
-		return 3;
+		exit(1);
 	}
-	return 0;
 }
 
 void graphics_init()
@@ -179,7 +178,7 @@ void ui(Character rogue)
 
 }
 
-void ray(Tile map[][200], float x1, float y1, float x2, float y2)
+void ray(Tile map[][300], float x1, float y1, float x2, float y2)
 {
 	std::vector < std::pair <int, int> > q;
 	bool swx = false;
@@ -252,7 +251,7 @@ void ray(Tile map[][200], float x1, float y1, float x2, float y2)
 	}
 }
 
-void render_player(Tile map[][200], Character rogue)
+void render_player(Tile map[][300], Character rogue)
 {
 	if(map[rogue.y][rogue.x].tile == edge)
 		init_pair(player, COLOR_WHITE, COLOR_BLUE);
@@ -264,7 +263,7 @@ void render_player(Tile map[][200], Character rogue)
 	mvprintw(rogue.y, rogue.x + 25, "@");
 }
 
-void render(Tile map[][200], Character rogue)
+void render(Tile map[][300], Character rogue)
 {
 	for(int i = 0; i < maxy; i++)
 	{
@@ -273,11 +272,11 @@ void render(Tile map[][200], Character rogue)
 			map[i][j].inView = false;
 		}
 	}
-	for(int i = 0; i < maxy; i++)
+	for(int i = 0; i <= maxy; i++)
 	{
-		for(int j = 0; j < maxx; j++)
+		for(int j = 0; j <= maxx; j++)
 		{
-			if(!i || i == maxy - 1 || !j || j == maxx - 1)
+			if(!i || i == maxy || !j || j == maxx)
 			{
 				ray(map, rogue.x, rogue.y, j, i);
 			}

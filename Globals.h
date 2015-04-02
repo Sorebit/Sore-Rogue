@@ -5,12 +5,11 @@
 
 extern std::vector <char> tileset[];
 
-extern int cy, cx, maxy, maxx, comp_count, max_lake, max_lake_size, comp[200][200], count[200];
+extern int cy, cx, maxy, maxx, comp_count, max_lake, max_lake_size, comp[300][300], count[300];
 
 
 struct Character
 {
-	char name[11];
 	int x, y, depth; 
 	int health, maxhealth; 
 	int strength, armor; 

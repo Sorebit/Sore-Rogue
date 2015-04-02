@@ -4,10 +4,10 @@
 #include <cstdlib>
 #include <ctime>
 
-void init_map(Tile map[][200])
+void init_map(Tile map[][300])
 {
 	max_lake = max_lake_size = comp_count = 0;
-	for(int i = 0; i < 200; i++)
+	for(int i = 0; i < 300; i++)
 		count[i] = 0;
 	for(int y = 0; y < maxy; y++)
 	{
@@ -25,7 +25,7 @@ void init_map(Tile map[][200])
 	}
 }
 
-int count_neighbours(int y, int x, Tile map[][200])
+int count_neighbours(int y, int x, Tile map[][300])
 {
 	int n = 0;
 	for(int i = -1; i < 2; i++)
@@ -45,9 +45,9 @@ int count_neighbours(int y, int x, Tile map[][200])
 	return n;
 }
 
-void step(Tile map[][200])
+void step(Tile map[][300])
 {
-	int temp[200][200];
+	int temp[300][300];
 	for(int y = 0; y < maxy; y++)
 	{
 		for(int x = 0; x < maxx; x++)
@@ -68,7 +68,7 @@ void step(Tile map[][200])
 	}
 }
 
-void dfs(int y, int x, Tile map[][200])
+void dfs(int y, int x, Tile map[][300])
 {
 	int nei[4][2] = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
 	comp[y][x] = comp_count;
@@ -88,7 +88,7 @@ void dfs(int y, int x, Tile map[][200])
 	}
 }
 
-void fill(Tile map[][200])
+void fill(Tile map[][300])
 {
 	for(int y = 0; y < maxy; y++)
 	{
@@ -101,17 +101,33 @@ void fill(Tile map[][200])
 			}
 		}
 	}
+	for(int i = 1; i <= comp_count; i++)
+	{
+		if(count[i] >= max_lake_size)
+		{
+			max_lake_size = count[i];
+			max_lake = i;
+		}
+	}
+	for(int y = 0; y < maxy; y++)
+	{
+		for(int x = 0; x < maxx; x++)
+		{
+			if(comp[y][x] != max_lake)
+				map[y][x].tile = 0;
+		}
+	}
 }
 
 
-void borders(Tile map[][200], int tile)
+void borders(Tile map[][300], int tile)
 {
 	bool fout = false;
 	for(int y = 0; y < maxy; y++)
 	{
 		for(int x = 0; x < maxx; x++)
 		{
-			if(map[y][x].tile != 1)
+			if(map[y][x].tile != 1 && map[y][x].tile != grass)
 				continue;
 			for(int i = -1; i < 2; i++)
 			{
@@ -148,33 +164,15 @@ void borders(Tile map[][200], int tile)
 	}
 }
 
-void generate_lake(Tile map[][200])
+void generate_lake(Tile map[][300])
 {	
 	init_map(map);
 	for(int steps = 0; steps < 5; steps++)
 		step(map);
 	fill(map);
-
-	for(int i = 1; i <= comp_count; i++)
-	{
-		if(count[i] >= max_lake_size)
-		{
-			max_lake_size = count[i];
-			max_lake = i;
-		}
-	}
-	for(int y = 0; y < maxy; y++)
-	{
-		for(int x = 0; x < maxx; x++)
-		{
-			if(comp[y][x] != max_lake)
-				map[y][x].tile = 0;
-		}
-	}
-	borders(map, wall);
 }
 
-void put_stairs(Tile map[][200], Character & rogue)
+void put_stairs(Tile map[][300], Character & rogue)
 {
 	int ex, ey, walls = 0;
 	while(true)
@@ -232,13 +230,39 @@ void put_stairs(Tile map[][200], Character & rogue)
 	cy = mqy;
 }
 
+void generate_grass(Tile map[][300])
+{
+	Tile blob[300][300];
+	
+	do
+	{
+		init_map(blob);
+		for(int steps = 0; steps < 5; steps++)
+			step(blob);
+		fill(blob);
+	} while(max_lake_size > (int)(maxy * maxx * 0.07));
 
-void generate_dungeon(Tile map[][200], Character & rogue)
+	for(int y = 0; y < maxy; y++)
+	{
+		for(int x = 0; x < maxx; x++)
+		{
+			if(blob[y][x].tile && map[y][x].tile)
+			{
+				map[y][x].tile = grass;
+			}
+		}
+	}
+}
+
+void generate_dungeon(Tile map[][300], Character & rogue)
 {
 	do 
 	{ 
 		generate_lake(map);
-	} while(max_lake_size < 1500);
+	} while(max_lake_size < (int)(maxy * maxx * 0.3) );
+	
+	if(rogue.depth < 3)
+		generate_grass(map);
+	borders(map, wall);
 	put_stairs(map, rogue);
 }
-

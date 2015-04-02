@@ -12,11 +12,11 @@
 std::vector <char> tileset[] = {{'?'}, {'.'}, {'"'}, {':'}, {'.'}, {'='}, {'#'}, {'~', '-'}, 
 								{'.'}, {'@'}, {'&'}, {'o'}, {'+', '.'}, {'1'}, {'\\'}}; 
 
-int cy, cx, maxy, maxx, comp_count = 1, max_lake, max_lake_size, comp[200][200], count[200];
+int cy, cx, maxy, maxx, comp_count = 1, max_lake, max_lake_size, comp[300][300], count[300];
 
 Character rogue;
 
-Tile map[200][200];
+Tile map[300][300];
 
 bool isPath(int x, int y)
 {
@@ -82,8 +82,8 @@ void entities()
 			break;
 		case stairs:
 			clear();
-			generate_dungeon(map, rogue);
 			rogue.depth++;
+			generate_dungeon(map, rogue);
 			break;
 	}
 }
