@@ -12,7 +12,7 @@
 std::vector <char> tileset[] = {{'?'}, {'.'}, {'"'}, {':'}, {'.'}, {'='}, {'#'}, {'~', '-'}, 
 								{'.'}, {'@'}, {'&'}, {'o'}, {'+', '.'}, {'1'}, {'\\'}}; 
 
-int cy, cx, maxy, maxx, comp_count = 1, max_lake, max_lake_size, comp[300][300], count[300], as = 1;
+int cy, cx, maxy, maxx, comp_count = 1, max_lake, max_lake_size, comp[300][300], count[300], as = 0;
 
 Character rogue;
 
@@ -115,7 +115,7 @@ int main()
 	getch();
 	clear();
 
-	rogue.depth = 1;
+	rogue.depth = 4;
 	rogue.health = 10;
 	rogue.maxhealth = 10;
 	rogue.nutr = 10;

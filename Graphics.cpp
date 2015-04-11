@@ -10,16 +10,19 @@ void wininit()
 	if(!initscr()) 
 	{
 		printf("Error initializing screen.\n");
+		endwin();
 		exit(1);
 	}
 	if(!has_colors()) 
 	{
 		printf("This terminal does not support colours.\n");
+		endwin();
 		exit(1);
 	}
 	if(!can_change_color())
 	{
 		printf("Your terminal needs to support 256 colors.\n");
+		endwin();
 		exit(1);
 	}
 }

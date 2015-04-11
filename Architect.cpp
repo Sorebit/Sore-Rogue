@@ -4,6 +4,10 @@
 #include <cstdlib>
 #include <ctime>
 
+extern int flood_been[300][300];
+int flood_been[300][300];
+bool possible;
+
 void init_blob(Tile map[][300], int size_y, int size_x)
 {
 	max_lake = max_lake_size = comp_count = 0;
@@ -203,9 +207,34 @@ void generate_blob(Tile map[][300], int my, int mx)
 	fill(map, my, mx);
 }
 
+void flood(int y, int x, Tile map[][300])
+{
+	int nei[4][2] = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
+	flood_been[y][x] = true;
+
+	for(int i = 0; i < 4; i++)
+	{
+		int ny = y + nei[i][0];
+		int nx = x + nei[i][1];
+		if(ny < 0 || ny > maxy - 1)
+			continue;
+		if(nx < 0 || nx > maxx - 1)
+			continue;
+
+		if(map[ny][nx].tile == stairs)
+			possible = true;
+
+		if(!map[ny][nx].tile || map[ny][nx].tile == pit || map[ny][nx].tile == water)
+			flood_been[ny][nx] = true;
+
+		if(!flood_been[ny][nx])
+			flood(ny, nx, map);
+	}
+}
+
 void put_stairs(Tile map[][300], Character & rogue)
 {
-	int ex, ey, walls = 0;
+	int ex, ey, walls = 0, walkables = 0;
 	while(true)
 	{
 		ex = rand() % maxx;
@@ -218,9 +247,11 @@ void put_stairs(Tile map[][300], Character & rogue)
 			{
 				if(map[ey + i][ex + j].tile == wall)
 					walls++;
+				if(map[ey + i][ex + j].tile == path || map[ey + i][ex + j].tile == grass || map[ey + i][ex + j].tile == edge || map[ey + i][ex + j].tile == coast)
+					walkables++;
 			}
 		}
-		if(walls >= 5)
+		if(walls >= 5 && walls + walkables >= 7)
 			break;
 		else
 			walls = 0;
@@ -228,37 +259,51 @@ void put_stairs(Tile map[][300], Character & rogue)
 	rogue.y = ey;
 	rogue.x = ex;
 	
-	int qx, qy, mqy = 0, mqx = 0, max_dist = 0;
-	walls = 0;
-
-	for(qy = 0; qy < maxy; qy++)
+	while(true)
 	{
-		for(qx = 0; qx < maxx; qx++)
+		int qx, qy, mqy = 0, mqx = 0, max_dist = 0;
+		walls = 0;
+		possible = false;
+
+		for(int i = 0; i < 300; i++)
 		{
-			if(map[qy][qx].tile != path)
-				continue;
-			for(int i = -1; i < 2; i++)
+			for(int j = 0; j < 300; j++)
 			{
-				for(int j = -1; j < 2; j++)
-				{
-					if(map[qy + i][qx + j].tile == wall)
-						walls++;
-				}
-			}
-			if(walls < 5)
-				continue;
-			if(max_dist < ( (qx-ex)*(qx-ex) + (qy-ey)*(qy-ey) ) )
-			{
-				max_dist = (qx-ex)*(qx-ex) + (qy-ey)*(qy-ey);
-				mqy = qy;
-				mqx = qx;
+				flood_been[i][j] = false;
 			}
 		}
-	}
 
-	map[mqy][mqx].tile = stairs;
-	cx = mqx;
-	cy = mqy;
+		for(qy = 0; qy < maxy; qy++)
+		{
+			for(qx = 0; qx < maxx; qx++)
+			{
+				if(map[qy][qx].tile != path)
+					continue;
+				for(int i = -1; i < 2; i++)
+				{
+					for(int j = -1; j < 2; j++)
+					{
+						if(map[qy + i][qx + j].tile == wall)
+							walls++;
+					}
+				}
+				if(walls < 5)
+					continue;
+				if(max_dist < ( (qx-ex)*(qx-ex) + (qy-ey)*(qy-ey) ) )
+				{
+					max_dist = (qx-ex)*(qx-ex) + (qy-ey)*(qy-ey);
+					mqy = qy;
+					mqx = qx;
+				}
+			}
+		}
+
+		map[mqy][mqx].tile = stairs;
+		flood(rogue.y, rogue.x, map);
+		if(possible)
+			return;
+		map[mqy][mqx].tile = wall;
+	}
 }
 
 void generate_grass_pit(Tile map[][300], Character & rogue)
