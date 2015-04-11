@@ -115,7 +115,7 @@ int main()
 	getch();
 	clear();
 
-	rogue.depth = 4;
+	rogue.depth = 1;
 	rogue.health = 10;
 	rogue.maxhealth = 10;
 	rogue.nutr = 10;

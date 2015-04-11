@@ -4,8 +4,7 @@
 #include <cstdlib>
 #include <ctime>
 
-extern int flood_been[300][300];
-int flood_been[300][300];
+int flood_been[300][300], path_count;
 bool possible;
 
 void init_blob(Tile map[][300], int size_y, int size_x)
@@ -207,10 +206,11 @@ void generate_blob(Tile map[][300], int my, int mx)
 	fill(map, my, mx);
 }
 
-void flood(int y, int x, Tile map[][300])
+void flood(int y, int x, Tile map[][300], Character rogue)
 {
 	int nei[4][2] = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
 	flood_been[y][x] = true;
+	path_count++;
 
 	for(int i = 0; i < 4; i++)
 	{
@@ -224,11 +224,11 @@ void flood(int y, int x, Tile map[][300])
 		if(map[ny][nx].tile == stairs)
 			possible = true;
 
-		if(!map[ny][nx].tile || map[ny][nx].tile == pit || map[ny][nx].tile == water)
+		if(!map[ny][nx].tile || map[ny][nx].tile == wall || map[ny][nx].tile == pit || map[ny][nx].tile == water)
 			flood_been[ny][nx] = true;
 
 		if(!flood_been[ny][nx])
-			flood(ny, nx, map);
+			flood(ny, nx, map, rogue);
 	}
 }
 
@@ -299,7 +299,7 @@ void put_stairs(Tile map[][300], Character & rogue)
 		}
 
 		map[mqy][mqx].tile = stairs;
-		flood(rogue.y, rogue.x, map);
+		flood(rogue.y, rogue.x, map, rogue);
 		if(possible)
 			return;
 		map[mqy][mqx].tile = wall;
@@ -350,18 +350,48 @@ void generate_pit(Tile map[][300])
 	put_blob(map, maxy, maxx, tpit, pit_y, pit_x, rand() % (maxy - pit_y), rand() % (maxx - pit_x));
 }
 
+void clearup_pit_edges(Tile map[][300], int my, int mx)
+{
+	int pits;
+	for(int y = 0; y < my; y++)
+	{
+		for(int x = 0; x < mx; x++)
+		{
+			if(map[y][x].tile != edge)
+					continue;
+			pits = 0;
+			for(int i = -1; i < 2; i++)
+			{
+				for(int j = -1; j < 2; j++)
+				{
+					if(map[y + i][x + j].tile == pit)
+						pits++;
+				}
+			}
+			if(!pits)
+				map[y][x].tile = wall;
+		}
+	}
+}
+
 void generate_dungeon(Tile map[][300], Character & rogue)
 {
-	do 
-	{ 
-		generate_blob(map, maxy, maxx);
-	} while(max_lake_size < (int)(maxy * maxx * 0.25) );
-	
-	generate_grass_pit(map, rogue);
-	if(rand() % 100 < 30)
+	while(path_count < (int)(maxy * maxx * 0.15))
 	{
-		generate_lake(map);
-	}
-	borders(map, wall);
-	put_stairs(map, rogue);
+		path_count = 0;
+		do 
+		{ 
+			generate_blob(map, maxy, maxx);
+		} while(max_lake_size < (int)(maxy * maxx * 0.25) );
+		
+		generate_grass_pit(map, rogue);
+		clearup_pit_edges(map, maxy, maxx);
+
+		if(rand() % 100 < 30)
+		{
+			generate_lake(map);
+		}
+		borders(map, wall);
+		put_stairs(map, rogue);
+	}	
 }
