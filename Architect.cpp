@@ -376,7 +376,7 @@ void clearup_pit_edges(Tile map[][300], int my, int mx)
 
 void generate_dungeon(Tile map[][300], Character & rogue)
 {
-	while(path_count < (int)(maxy * maxx * 0.15))
+	do
 	{
 		path_count = 0;
 		do 
@@ -388,10 +388,8 @@ void generate_dungeon(Tile map[][300], Character & rogue)
 		clearup_pit_edges(map, maxy, maxx);
 
 		if(rand() % 100 < 30)
-		{
 			generate_lake(map);
-		}
 		borders(map, wall);
 		put_stairs(map, rogue);
-	}	
+	} while(path_count < (int)(maxy * maxx * 0.15));
 }
