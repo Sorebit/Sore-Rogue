@@ -1,5 +1,4 @@
 #include "Graphics.h"
-#include "Mob.h"
 
 #include <ncurses.h>
 #include <cstdlib>
@@ -138,12 +137,12 @@ void show_equipment(Character & rogue)
 
 }
 
-void show_mobs_nearby(Tile map[][300], Character rogue, std::vector <Mob> mob_list)
+void show_mobs_nearby(Character rogue, std::vector <Mob> mob_list)
 {
 	int offset = 0;
 	for(unsigned int i = 0; i < mob_list.size(); i++)
 	{
-		if(!mob_list[i].seesPlayer(map, rogue))
+		if(!mob_list[i].seesPlayer(rogue))
 			continue;
 
 		attron(COLOR_PAIR(mob));
@@ -166,7 +165,7 @@ void show_mobs_nearby(Tile map[][300], Character rogue, std::vector <Mob> mob_li
 	}
 }
 
-void ui(Tile map[][300], Character rogue, std::vector <Mob> mob_list)
+void ui(Character rogue, std::vector <Mob> mob_list)
 {
 	// Clear the bar first
 	attron(COLOR_PAIR(uitext));
@@ -223,7 +222,7 @@ void ui(Tile map[][300], Character rogue, std::vector <Mob> mob_list)
 	
 	show_equipment(rogue);
 
-	show_mobs_nearby(map, rogue, mob_list);
+	show_mobs_nearby(rogue, mob_list);
 
 	attron(A_BOLD);
 	attron(COLOR_PAIR(text));
@@ -233,7 +232,7 @@ void ui(Tile map[][300], Character rogue, std::vector <Mob> mob_list)
 
 }
 
-void ray(Tile map[][300], float x1, float y1, float x2, float y2)
+void ray(float x1, float y1, float x2, float y2)
 {
 	std::vector < std::pair <int, int> > q;
 	bool swx = false;
@@ -333,7 +332,7 @@ void ray(Tile map[][300], float x1, float y1, float x2, float y2)
 	}
 }
 
-void render_player(Tile map[][300], Character rogue)
+void render_player(Character rogue)
 {
 	if(map[rogue.y][rogue.x].tile == edge)
 		init_pair(player, COLOR_WHITE, COLOR_BLUE);
@@ -347,14 +346,14 @@ void render_player(Tile map[][300], Character rogue)
 	mvprintw(rogue.y, rogue.x + 25, "@");
 }
 
-void render_mobs(Tile map[][300], Character rogue, std::vector <Mob> mob_list)
+void render_mobs(Character rogue, std::vector <Mob> mob_list)
 {
 	for(unsigned int i = 0; i < mob_list.size(); i++)
 	{
 		std::pair <int, int> pos = mob_list[i].getPos();
 		if(!map[pos.first][pos.second].seen)
 				continue;
-		if(mob_list[i].seesPlayer(map, rogue))
+		if(mob_list[i].seesPlayer(rogue))
 		{
 			attron(COLOR_PAIR(mob));
 			mvprintw(pos.first, pos.second + 25, "%c", mob_list[i].getTile());
@@ -362,7 +361,7 @@ void render_mobs(Tile map[][300], Character rogue, std::vector <Mob> mob_list)
 	}
 }
 
-void render(Tile map[][300], Character rogue, std::vector <Mob> mob_list)
+void render(Character rogue, std::vector <Mob> mob_list)
 {
 	for(int i = 0; i < maxy; i++)
 	{
@@ -378,7 +377,7 @@ void render(Tile map[][300], Character rogue, std::vector <Mob> mob_list)
 		{
 			if(!i || i == maxy || !j || j == maxx)
 			{
-				ray(map, rogue.x, rogue.y, j, i);
+				ray(rogue.x, rogue.y, j, i);
 			}
 		}
 	}
@@ -406,6 +405,6 @@ void render(Tile map[][300], Character rogue, std::vector <Mob> mob_list)
 			
 		}
 	}
-	render_mobs(map, rogue, mob_list);
-	render_player(map, rogue);
+	render_mobs(rogue, mob_list);
+	render_player(rogue);
 }

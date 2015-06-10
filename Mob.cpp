@@ -1,6 +1,6 @@
 #include "Mob.h"
 
-Mob::Mob(Tile map[][300], Character rogue, std::string sName, int maxheal)
+Mob::Mob(Character rogue, std::string sName, int maxheal)
 {
 	// Set a non 0 name and make the tile its first letter
 	name = (sName != "") ? sName : "null";
@@ -20,14 +20,14 @@ std::string Mob::getName() { return name; }
 std::pair <int, int> Mob::getHealth() { return {health, maxhealth}; }
 
 // Actions
-void Mob::setSpawn(Tile map[][300], int py, int px)
+void Mob::setSpawn(int py, int px)
 {
 	y = py;
 	x = px;
 	map[y][x].occupied = true;
 }
 
-void Mob::walk(Tile map[][300], std::pair <int, int> step)
+void Mob::walk(std::pair <int, int> step)
 {
 	Tile checked = map[y + step.first][x + step.second];
 	if(checked.tile == zero || checked.tile == wall || checked.tile == pit)
@@ -41,14 +41,14 @@ void Mob::walk(Tile map[][300], std::pair <int, int> step)
 
 }
 
-bool Mob::seesPlayer(Tile map[][300], Character rogue)
+bool Mob::seesPlayer(Character rogue)
 {
 	// Check if a mob can see the player (actually the oposite but who cares)
 	// Probably should use drawing lines
 	return map[y][x].inView;
 }
 
-void Mob::findPath(Tile map[][300], int y, int x)
+void Mob::findPath(int y, int x)
 {
 	return;
 }

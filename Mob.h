@@ -27,12 +27,12 @@ class Mob
 		std::pair <int, int> getPos();
 
 		// Actions
-		void walk(Tile map[][300], std::pair <int, int> );
-		void setSpawn(Tile map[][300], int py, int px);
-		bool seesPlayer(Tile map[][300], Character rogue);
-		void findPath(Tile map[][300], int py, int px);
+		void walk(std::pair <int, int> );
+		void setSpawn(int py, int px);
+		bool seesPlayer(Character rogue);
+		void findPath(int py, int px);
 
-		Mob(Tile map[][300], Character rogue, std::string name, int maxheal);
+		Mob(Character rogue, std::string name, int maxheal);
 };
 
 #endif

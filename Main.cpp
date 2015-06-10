@@ -123,7 +123,7 @@ void mobs()
 {
 	for(unsigned int i = 0; i < mob_list.size(); i++)
 	{
-		mob_list[i].walk(map, prov_steps[mob_step]);
+		mob_list[i].walk(prov_steps[mob_step]);
 	}
 	mob_step = (++mob_step == 4) ? 0 : mob_step;
 }
@@ -152,26 +152,26 @@ int main()
 
 	generate_dungeon(map, rogue);
 
-	Mob test_mob1(map, rogue, "troll", 10);
-	test_mob1.setSpawn(map, 30, 30);
+	Mob test_mob1(rogue, "troll", 10);
+	test_mob1.setSpawn(30, 30);
 	map[30][30].seen = true;
 	mob_list.push_back(test_mob1);
 
-	Mob test_mob2(map, rogue, "frog", 30);
-	test_mob2.setSpawn(map, 25, 25);
+	Mob test_mob2(rogue, "frog", 30);
+	test_mob2.setSpawn(25, 25);
 	map[25][25].seen = true;
 	mob_list.push_back(test_mob2);
 
-	Mob test_mob3(map, rogue, "witch", 40);
-	test_mob3.setSpawn(map, 20, 20);
+	Mob test_mob3(rogue, "witch", 40);
+	test_mob3.setSpawn(20, 20);
 	map[20][20].seen = true;
 	mob_list.push_back(test_mob3);
 
 	// Initial render
 	mobs();
 	entities();
-	render(map, rogue, mob_list);
-	ui(map, rogue, mob_list);
+	render(rogue, mob_list);
+	ui(rogue, mob_list);
 
 	while(true)
 	{
@@ -183,8 +183,8 @@ int main()
 
 		mobs();
 		entities();
-		render(map, rogue, mob_list);
-		ui(map, rogue, mob_list);
+		render(rogue, mob_list);
+		ui(rogue, mob_list);
 	}
 
 	endwin();

@@ -24,6 +24,8 @@ struct Tile
 	bool door_open, occupied;
 };
 
+extern Tile map[300][300];
+
 enum keyboard
 {
 	down = 258,
