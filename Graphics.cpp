@@ -1,4 +1,6 @@
 #include "Graphics.h"
+#include "Mob.h"
+
 #include <ncurses.h>
 #include <cstdlib>
 #include <string>
@@ -31,7 +33,10 @@ void graphics_init()
 {
 	start_color();
 
-	//custom color definitons
+	// Make black be black
+	init_color(0, 0, 0, 0);
+
+	// Custom color definitons
 	init_color(COLOR_BLUE, 45, 60, 350);
 	init_color(COLOR_DARK_BLUE, 0, 0, 80);
 	init_color(COLOR_GOLD, 1000, 900, 300);
@@ -58,10 +63,12 @@ void graphics_init()
 	init_color(COLOR_BUI1, 0, 0, 250);
 	init_color(COLOR_UI2, 41, 88, 610);
 	init_color(COLOR_BUI2, 0, 0, 150);
+	init_color(COLOR_UI3, 450, 0, 0);
+	init_color(COLOR_BUI3, 300, 0, 0);
 
-	//Custom color pairs
+	// Custom color pairs
 
-	//Path & Walls
+	// Path & Walls
 	init_pair(path, COLOR_GREY, COLOR_DARK_BLUE);
 	init_pair(grass, COLOR_LIGHT_GREEN, COLOR_DARK_BLUE);
 	init_pair(pit, COLOR_OOV_GREY, COLOR_BLACK);
@@ -84,15 +91,16 @@ void graphics_init()
 	init_pair(okey, COLOR_OOV_GOLD, COLOR_OOV_BLUE);
 	init_pair(ostairs, COLOR_OOV_GOLD, COLOR_OOV_BLUE);
 
-	//Mobs
+	// Living creatures
 	init_pair(player, COLOR_WHITE, COLOR_DARK_BLUE);
 	init_pair(mob, COLOR_GOLD, COLOR_DARK_BLUE);
+	init_pair(omob, COLOR_OOV_GOLD, COLOR_OOV_BLUE);
 
-	//Fluids
+	// Fluids
 	init_pair(water, COLOR_WATER_FORE, COLOR_WATER_BACK);
 	init_pair(owater, COLOR_OOV_WATER_FORE, COLOR_OOV_WATER_BACK);
 
-	//Other
+	// Other
 	init_pair(gold, COLOR_GOLD, COLOR_DARK_BLUE);
 	init_pair(ogold, COLOR_OOV_GOLD, COLOR_OOV_BLUE);
 
@@ -101,9 +109,11 @@ void graphics_init()
 	init_pair(bui1, COLOR_GREY, COLOR_BUI1);
 	init_pair(ui2, COLOR_GREY, COLOR_UI2);
 	init_pair(bui2, COLOR_GREY, COLOR_BUI2);
+	init_pair(ui3, COLOR_GREY, COLOR_UI3);
+	init_pair(bui3, COLOR_GREY, COLOR_BUI3);
 	init_pair(uitext, COLOR_GREY, COLOR_BLACK);
 
-	//Cursor and invisible input
+	// Cursor and invisible input
 	curs_set(0);
 	noecho();
 }
@@ -128,8 +138,46 @@ void show_equipment(Character & rogue)
 
 }
 
-void ui(Character rogue)
+void show_mobs_nearby(Tile map[][300], Character rogue, std::vector <Mob> mob_list)
 {
+	int offset = 0;
+	for(unsigned int i = 0; i < mob_list.size(); i++)
+	{
+		if(!mob_list[i].seesPlayer(map, rogue))
+			continue;
+
+		attron(COLOR_PAIR(mob));
+		mvprintw(11 + offset, 0, "%c", mob_list[i].getTile());
+		attron(COLOR_PAIR(text));
+		mvprintw(11 + offset, 1, ": %s", mob_list[i].getName().c_str());
+
+		int health = mob_list[i].getHealth().first;
+		int maxhealth = mob_list[i].getHealth().second;
+		std::string healStr = "         Health         ";
+		double percent = std::floor((double)health/maxhealth * 24);
+
+		for(unsigned int i = 0; i < 24; i++)
+		{
+			attron( COLOR_PAIR(ui3 + (i > percent) ) );
+			mvprintw(12 + offset, i, "%c", healStr[i]);
+		}
+		
+		offset += 3;
+	}
+}
+
+void ui(Tile map[][300], Character rogue, std::vector <Mob> mob_list)
+{
+	// Clear the bar first
+	attron(COLOR_PAIR(uitext));
+	for(int y = 0; y < maxy; y++)
+	{
+		for(int x = 0; x < 25; x++)
+		{
+			mvprintw(y, x, " ");
+		}
+	}
+
 	attron(A_BOLD);
 	attron(COLOR_PAIR(player));
 	mvprintw(0, 0, "@");
@@ -175,6 +223,8 @@ void ui(Character rogue)
 	
 	show_equipment(rogue);
 
+	show_mobs_nearby(map, rogue, mob_list);
+
 	attron(A_BOLD);
 	attron(COLOR_PAIR(text));
 	s = "-- Depth: " + std::to_string(rogue.depth) + " --";
@@ -196,7 +246,7 @@ void ray(Tile map[][300], float x1, float y1, float x2, float y2)
 	if(x1 > x2)
 	{
 		swx = true;
-		std::swap(x1, x2);
+		std::swap(x1, x2);	
 		std::swap(y1, y2);
 	}
 
@@ -207,10 +257,15 @@ void ray(Tile map[][300], float x1, float y1, float x2, float y2)
 	const int ystep = (y1 < y2) ? 1 : -1;
 	int y = (int)y1;
 
-	const int _maxX = (int)x2;
+	const int max_x = (int)x2;
 
-	for(int x = (int)x1; x < _maxX; x++)
+	const int max_length = 16; // testing 
+	int length = 0; // testing
+
+	for(int x = (int)x1; x < max_x; x++)
 	{
+		if(length > max_length && !swx) // testing
+			return; // testing
 		if(steep)
 		{
 			if(swx)
@@ -242,10 +297,15 @@ void ray(Tile map[][300], float x1, float y1, float x2, float y2)
 			y += ystep;
 			error += dx;
 		}
+		length++; // testing
 	}
+
 	int qx, qy;
+	length = 0;
 	while(!q.empty())
 	{
+		if(length++ > max_length) // testing
+			return; // testing
 		qy = q[q.size()-1].first;
 		qx = q[q.size()-1].second;
 		q.pop_back();
@@ -253,6 +313,23 @@ void ray(Tile map[][300], float x1, float y1, float x2, float y2)
 		map[qy][qx].inView = true;
 		if(map[qy][qx].tile == wall || map[qy][qx].tile == door)
 			return;
+	}
+	
+	if(swx)
+	{
+		std::swap(x1, x2);
+		std::swap(y1, y2);
+	}
+
+	if(!steep)
+	{
+		map[(int)y1][(int)x1].seen = true;
+		map[(int)y1][(int)x1].inView = true;
+	}
+	else
+	{
+		map[(int)x1][(int)y1].seen = true;
+		map[(int)x1][(int)y1].inView = true;
 	}
 }
 
@@ -270,7 +347,22 @@ void render_player(Tile map[][300], Character rogue)
 	mvprintw(rogue.y, rogue.x + 25, "@");
 }
 
-void render(Tile map[][300], Character rogue)
+void render_mobs(Tile map[][300], Character rogue, std::vector <Mob> mob_list)
+{
+	for(unsigned int i = 0; i < mob_list.size(); i++)
+	{
+		std::pair <int, int> pos = mob_list[i].getPos();
+		if(!map[pos.first][pos.second].seen)
+				continue;
+		if(mob_list[i].seesPlayer(map, rogue))
+		{
+			attron(COLOR_PAIR(mob));
+			mvprintw(pos.first, pos.second + 25, "%c", mob_list[i].getTile());
+		}
+	}
+}
+
+void render(Tile map[][300], Character rogue, std::vector <Mob> mob_list)
 {
 	for(int i = 0; i < maxy; i++)
 	{
@@ -279,6 +371,7 @@ void render(Tile map[][300], Character rogue)
 			map[i][j].inView = false;
 		}
 	}
+
 	for(int i = 0; i <= maxy; i++)
 	{
 		for(int j = 0; j <= maxx; j++)
@@ -289,6 +382,7 @@ void render(Tile map[][300], Character rogue)
 			}
 		}
 	}
+
 	for(int i = 0; i < maxy; i++)
 	{
 		for(int j = 0; j < maxx; j++)
@@ -312,5 +406,6 @@ void render(Tile map[][300], Character rogue)
 			
 		}
 	}
+	render_mobs(map, rogue, mob_list);
 	render_player(map, rogue);
 }

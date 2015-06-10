@@ -19,8 +19,9 @@ struct Character
 
 struct Tile
 { 
-	int door_open, tile; 
-	bool seen, inView; 
+	int tile;
+	bool seen, inView;
+	bool door_open, occupied;
 };
 
 enum keyboard
@@ -61,6 +62,7 @@ enum Tiles
 	owall = 26,
 	owater = 27,
 	ocoast = 28,
+	omob = 30,
 	ogold = 31,
 	odoor = 32,
 	okey = 33,
@@ -70,7 +72,9 @@ enum Tiles
 	bui1 = 51,
 	ui2 = 53,
 	bui2 = 54,
-	uitext = 55,
+	ui3 = 55,
+	bui3 = 56,
+	uitext = 57,
 };
 
 enum Colors 
@@ -101,8 +105,8 @@ enum Colors
 	COLOR_BUI1 = 51,
 	COLOR_UI2 = 52,
 	COLOR_BUI2 = 53,
-
-	
+	COLOR_UI3 = 54,
+	COLOR_BUI3 = 55,
 };
 
 #endif

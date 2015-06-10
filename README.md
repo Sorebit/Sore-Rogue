@@ -7,6 +7,6 @@ What you will also need:
 * ncurses-term
 * libncurses5-dev
 
-To compile: g++ -std=c++11 -Wall -O2 -o Rogue Main.cpp Graphics.cpp Architect.cpp -lncurses
+Use Makefile to compile, it should make the "Rogue" executable
 
 No copyrights whatsoever.

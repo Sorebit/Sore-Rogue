@@ -1,3 +1,4 @@
+// Sorbet - (No copyrights whatsoever) 2015
 #include <ncurses.h>
 #include <unistd.h>
 #include <cstdlib>
@@ -8,15 +9,22 @@
 
 #include "Graphics.h"
 #include "Architect.h"
+#include "Mob.h"
 
 std::vector <char> tileset[] = {{'?'}, {'.'}, {'"'}, {':'}, {'.'}, {'='}, {'#'}, {'~', '-'}, 
 								{'.'}, {'@'}, {'&'}, {'o'}, {'+', '.'}, {'1'}, {'\\'}}; 
 
-int cy, cx, maxy, maxx, comp_count = 1, max_lake, max_lake_size, comp[300][300], count[300], as = 0;
+int cy, cx, input, maxy, maxx, comp_count = 1, max_lake, max_lake_size, comp[300][300], count[300], as = 0;
+
+std::pair <int, int> prov_steps[] = { {-1, 0}, {0, -1}, {1, 0}, {0, 1} };
 
 Character rogue;
 
+std::vector <Mob> mob_list;
+
 Tile map[300][300];
+
+int mob_step = 1;
 
 bool isPath(int x, int y)
 {
@@ -26,6 +34,8 @@ bool isPath(int x, int y)
 		return false;
 	else if(map[y][x].tile == door)
 		return (rogue.keys || map[y][x].door_open);
+	if(map[y][x].occupied)
+		return false;
 	return true;
 }
 
@@ -42,14 +52,22 @@ void see_all()
 	as ^= 1;
 }
 
-int getMovement()
+int getUserInput()
 {
 	int key = getch();
+
+	map[rogue.y][rogue.x].occupied = false;
 	switch(key)
 	{
+	// Special keys
 	case quit:
 		return 0;
 		break;
+	case plsstop:
+		clear();
+		see_all();
+		break;
+	// Movement keys
 	case up:
 		if(isPath(rogue.x, rogue.y - 1))
 			rogue.y--;
@@ -66,12 +84,11 @@ int getMovement()
 		if(isPath(rogue.x + 1, rogue.y))
 			rogue.x++;
 		break;
-	case plsstop:
-		clear();
-		see_all();
-		break;
-
+	default:
+		map[rogue.y][rogue.x].occupied = true;
+		return 2;
 	}
+	map[rogue.y][rogue.x].occupied = true;
 	return 1;
 }
 
@@ -102,6 +119,15 @@ void entities()
 	}
 }
 
+void mobs()
+{
+	for(unsigned int i = 0; i < mob_list.size(); i++)
+	{
+		mob_list[i].walk(map, prov_steps[mob_step]);
+	}
+	mob_step = (++mob_step == 4) ? 0 : mob_step;
+}
+
 int main()
 {	
 	wininit();
@@ -126,12 +152,40 @@ int main()
 
 	generate_dungeon(map, rogue);
 
-	do
+	Mob test_mob1(map, rogue, "troll", 10);
+	test_mob1.setSpawn(map, 30, 30);
+	map[30][30].seen = true;
+	mob_list.push_back(test_mob1);
+
+	Mob test_mob2(map, rogue, "frog", 30);
+	test_mob2.setSpawn(map, 25, 25);
+	map[25][25].seen = true;
+	mob_list.push_back(test_mob2);
+
+	Mob test_mob3(map, rogue, "witch", 40);
+	test_mob3.setSpawn(map, 20, 20);
+	map[20][20].seen = true;
+	mob_list.push_back(test_mob3);
+
+	// Initial render
+	mobs();
+	entities();
+	render(map, rogue, mob_list);
+	ui(map, rogue, mob_list);
+
+	while(true)
 	{
+		input = getUserInput();
+		if(!input) 
+			break;
+		if(input == 2)
+			continue;
+
+		mobs();
 		entities();
-		render(map, rogue);
-		ui(rogue);
-	} while(getMovement());
+		render(map, rogue, mob_list);
+		ui(map, rogue, mob_list);
+	}
 
 	endwin();
 	return 0;
