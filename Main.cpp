@@ -120,17 +120,23 @@ void entities()
 
 void mobs()
 {
+	// Mobs should decide wheter to attack or move, depending on their status,
+	// health, distance from player etc
+	// From every
 	for(unsigned int i = 0; i < mob_list.size(); i++)
 	{
 		if(mob_list[i].seesPlayer(rogue))
 			mob_list[i].findPath(rogue.y, rogue.x);
+
+		if(++mob_list[i].rate_counter != mob_list[i].getRate())
+			continue;
+		else
+			mob_list[i].rate_counter = 0;
+
+
 		if(!mob_list[i].path_to_player.empty())
 		{
-			if(++mob_list[i].left_to_step == mob_list[i].walk_rate)
-			{ 
-				mob_list[i].left_to_step = 0;
-				mob_list[i].walk( mob_list[i].getNextStep() );
-			}
+			mob_list[i].walk( mob_list[i].getNextStep() );
 		}	
 	}
 }
@@ -161,9 +167,7 @@ int main()
 {	
 	wininit();
 	srand(time(NULL));
-	keypad(stdscr, true);
-	getmaxyx(stdscr, maxy, maxx);
-	maxx -= 25;
+
 	graphics_init();
 
 	// Main menu: To-do
@@ -182,31 +186,25 @@ int main()
 
 	generate_dungeon(map, rogue);
 
-	Mob test_mob1(rogue, "troll", 10);
+	Mob test_mob1("troll");
 	test_mob1.setSpawn(30, 30);
 	map[30][30].seen = true;
-	test_mob1.walk_rate = 3;
-	test_mob1.left_to_step = 0;
 	mob_list.push_back(test_mob1);
 	
-	Mob test_mob2(rogue, "frog", 30);
+	Mob test_mob2("frog");
 	test_mob2.setSpawn(25, 25);
 	map[25][25].seen = true;
-	test_mob2.walk_rate = 3;
-	test_mob2.left_to_step = 0;
 	mob_list.push_back(test_mob2);
 
-	Mob test_mob3(rogue, "witch", 40);
+	Mob test_mob3("witch");
 	test_mob3.setSpawn(20, 20);
-	test_mob3.walk_rate = 5;
-	test_mob3.left_to_step = 0;
 	map[20][20].seen = true;
 	mob_list.push_back(test_mob3);
 	
 	// Initial render
 	entities();
-	render(rogue, mob_list);
-	ui(rogue, mob_list);
+	render();
+	ui();
 
 	while(true)
 	{
@@ -218,8 +216,8 @@ int main()
 
 		mobs();
 		entities();
-		render(rogue, mob_list);
-		ui(rogue, mob_list);
+		render();
+		ui();
 	}
 
 	endwin();

@@ -26,6 +26,16 @@ void wininit()
 		endwin();
 		exit(1);
 	}
+
+	keypad(stdscr, true);
+	getmaxyx(stdscr, maxy, maxx);
+	maxx -= 25;
+	if(maxy > 300 || maxx > 300)
+	{
+		printf("Your screen is bigger than 300x300\nPlease reduce its size\n");
+		endwin();
+		exit(1);
+	} 
 }
 
 void graphics_init()
@@ -117,7 +127,7 @@ void graphics_init()
 	noecho();
 }
 
-void show_equipment(Character & rogue)
+void show_equipment()
 {
 	// NOTE: Item name can't be longer than 20 chars
 	// An item class?
@@ -137,7 +147,7 @@ void show_equipment(Character & rogue)
 
 }
 
-void show_mobs_nearby(Character rogue, std::vector <Mob> mob_list)
+void show_mobs_nearby()
 {
 	int offset = 0;
 	for(unsigned int i = 0; i < mob_list.size(); i++)
@@ -165,7 +175,7 @@ void show_mobs_nearby(Character rogue, std::vector <Mob> mob_list)
 	}
 }
 
-void ui(Character rogue, std::vector <Mob> mob_list)
+void ui()
 {
 	// Clear the bar first
 	attron(COLOR_PAIR(uitext));
@@ -220,9 +230,9 @@ void ui(Character rogue, std::vector <Mob> mob_list)
 	std::string s = "Str: " + std::to_string(rogue.strength) + " Armor: " + std::to_string(rogue.armor);
 	mvprintw(4, 1 + (22 - s.length() ) / 2, "%s",  s.c_str());
 	
-	show_equipment(rogue);
+	show_equipment();
 
-	show_mobs_nearby(rogue, mob_list);
+	show_mobs_nearby();
 
 	attron(A_BOLD);
 	attron(COLOR_PAIR(text));
@@ -332,7 +342,7 @@ void ray(float x1, float y1, float x2, float y2)
 	}
 }
 
-void render_player(Character rogue)
+void render_player()
 {
 	if(map[rogue.y][rogue.x].tile == edge)
 		init_pair(player, COLOR_WHITE, COLOR_BLUE);
@@ -346,7 +356,7 @@ void render_player(Character rogue)
 	mvprintw(rogue.y, rogue.x + 25, "@");
 }
 
-void render_mobs(Character rogue, std::vector <Mob> mob_list)
+void render_mobs()
 {
 	for(unsigned int i = 0; i < mob_list.size(); i++)
 	{
@@ -361,7 +371,7 @@ void render_mobs(Character rogue, std::vector <Mob> mob_list)
 	}
 }
 
-void render(Character rogue, std::vector <Mob> mob_list)
+void render()
 {
 	for(int i = 0; i < maxy; i++)
 	{
@@ -405,6 +415,6 @@ void render(Character rogue, std::vector <Mob> mob_list)
 			
 		}
 	}
-	render_mobs(rogue, mob_list);
-	render_player(rogue);
+	render_mobs();
+	render_player();
 }

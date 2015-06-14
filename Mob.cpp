@@ -1,23 +1,52 @@
 #include "Mob.h"
 
-Mob::Mob(Character rogue, std::string sName, int maxheal)
+Mob::Mob(std::string species)
 {
 	// TODO:
-	// @param: std::string species
-	// switch(species)
-	// case "troll":
-	// 		health = 50;
-	// etc
+	// Losing interest after not seeing the player for n frames
+	// more species
+	// more attributes (damage, experience that they drop)
+	// special skills ?
+	// 
 
-	// Set a non 0 name and make the tile its first letter
-	name = (sName != "") ? sName : "null";
-	name[0] = toupper(name[0]);
-	tile = tolower(name[0]);
-	maxhealth = maxheal;
-	health = maxhealth - 2;
+	std::transform(species.begin(), species.end(), species.begin(), ::tolower);
+	
+	if(species == "rat")
+	{
+		name = "Rat";
+		tile = 'r';
+		maxhealth = 8;
+		action_rate = 1;
+	}
+	else if(species == "frog")
+	{
+		name = "Frog";
+		tile = 'f';
+		maxhealth = 5;
+		action_rate = 2;
+	}
+	else if(species == "troll")
+	{
+		name = "Troll";
+		tile = 't';
+		maxhealth = 50;
+		action_rate = 4; 		
+	}
+	else if(species == "witch")
+	{
+		name = "Witch";
+		tile = 'w';
+		maxhealth = 15;
+		action_rate = 3;
+	}
+
+	health = maxhealth;
+	rate_counter = 0;
 }
 
 // Get attributes
+int Mob::getRate() { return action_rate; }
+
 std::pair <int, int> Mob::getPos() { return {y, x}; }
 
 char Mob::getTile() { return tile; }

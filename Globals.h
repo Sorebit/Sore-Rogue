@@ -16,6 +16,8 @@ struct Character
 	int silver, keys; 
 };
 
+extern Character rogue;
+
 struct Tile
 { 
 	int tile;

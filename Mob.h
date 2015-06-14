@@ -20,15 +20,14 @@ class Mob
 		char tile;
 		int x, y;
 		int health, maxhealth;
-		int attack_rate;
-		
+		int action_rate;
 		
 	public:
-		int left_to_step;
-		int walk_rate;
+		int rate_counter;
 		std::stack < std::pair <int, int> > path_to_player;
 
 		// Get attributes
+		int getRate();
 		char getTile();
 		std::string getName();
 		std::pair <int, int> getHealth();
@@ -42,5 +41,7 @@ class Mob
 		void walk(std::pair <int, int> );
 		void clearPath();
 
-		Mob(Character rogue, std::string name, int maxheal);
+		Mob(std::string spieces);
 };
+
+extern std::vector <Mob> mob_list;
