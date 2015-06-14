@@ -133,11 +133,7 @@ void mobs()
 		else
 			mob_list[i].rate_counter = 0;
 
-
-		if(!mob_list[i].path_to_player.empty())
-		{
-			mob_list[i].walk( mob_list[i].getNextStep() );
-		}	
+		mob_list[i].walk( mob_list[i].getNextStep() );
 	}
 }
 

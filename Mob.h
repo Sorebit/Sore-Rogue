@@ -10,7 +10,6 @@
 #include <random>
 #include <chrono>
 
-
 #include "Globals.h"
 
 class Mob
@@ -21,10 +20,10 @@ class Mob
 		int x, y;
 		int health, maxhealth;
 		int action_rate;
+		std::stack < std::pair <int, int> > path_to_player;
 		
 	public:
 		int rate_counter;
-		std::stack < std::pair <int, int> > path_to_player;
 
 		// Get attributes
 		int getRate();

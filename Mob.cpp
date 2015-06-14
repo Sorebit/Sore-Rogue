@@ -174,6 +174,8 @@ void Mob::findPath(const int fy, const int fx)
 
 std::pair <int, int> Mob::getNextStep()
 {
+	if(path_to_player.empty())
+		return {0, 0};
 	std::pair <int, int> step = path_to_player.top();
 	step.first -= y;
 	step.second -= x;
