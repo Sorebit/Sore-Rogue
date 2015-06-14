@@ -11,12 +11,11 @@
 #include "Architect.h"
 #include "Mob.h"
 
+
 std::vector <char> tileset[] = {{'?'}, {'.'}, {'"'}, {':'}, {'.'}, {'='}, {'#'}, {'~', '-'}, 
 								{'.'}, {'@'}, {'&'}, {'o'}, {'+', '.'}, {'1'}, {'\\'}}; 
 
 int cy, cx, input, maxy, maxx, comp_count = 1, max_lake, max_lake_size, comp[300][300], count[300], as = 0;
-
-std::pair <int, int> prov_steps[] = { {-1, 0}, {0, -1}, {1, 0}, {0, 1} };
 
 Character rogue;
 
@@ -123,9 +122,39 @@ void mobs()
 {
 	for(unsigned int i = 0; i < mob_list.size(); i++)
 	{
-		mob_list[i].walk(prov_steps[mob_step]);
+		if(mob_list[i].seesPlayer(rogue))
+			mob_list[i].findPath(rogue.y, rogue.x);
+		if(!mob_list[i].path_to_player.empty())
+		{
+			if(++mob_list[i].left_to_step == mob_list[i].walk_rate)
+			{ 
+				mob_list[i].left_to_step = 0;
+				mob_list[i].walk( mob_list[i].getNextStep() );
+			}
+		}	
 	}
-	mob_step = (++mob_step == 4) ? 0 : mob_step;
+}
+
+void pathfinding_test_map()
+{
+	for(int y = 0; y <= 50; y++)
+	{
+		for(int x = 0; x <= 50; x++)
+		{
+			map[y][x].tile = (!y || !x || y == 50 || x == 50) ? wall : path;
+			map[y][x].seen = true;
+		}
+	}
+
+	for(int y = 20; y <= 30; y++)
+	{
+		for(int x = 20; x <= 30; x++)
+		{
+			map[y][x].tile = (y == 20 || x == 20 || y == 30 || x == 30) ? wall : path;
+			map[y][x].seen = true;
+		}
+	}
+	map[25][20].tile = path;
 }
 
 int main()
@@ -137,6 +166,7 @@ int main()
 	maxx -= 25;
 	graphics_init();
 
+	// Main menu: To-do
 	printw("Press any key to start\nQ to quit anytime.\n");
 	getch();
 	clear();
@@ -155,20 +185,25 @@ int main()
 	Mob test_mob1(rogue, "troll", 10);
 	test_mob1.setSpawn(30, 30);
 	map[30][30].seen = true;
+	test_mob1.walk_rate = 3;
+	test_mob1.left_to_step = 0;
 	mob_list.push_back(test_mob1);
-
+	
 	Mob test_mob2(rogue, "frog", 30);
 	test_mob2.setSpawn(25, 25);
 	map[25][25].seen = true;
+	test_mob2.walk_rate = 3;
+	test_mob2.left_to_step = 0;
 	mob_list.push_back(test_mob2);
 
 	Mob test_mob3(rogue, "witch", 40);
 	test_mob3.setSpawn(20, 20);
+	test_mob3.walk_rate = 5;
+	test_mob3.left_to_step = 0;
 	map[20][20].seen = true;
 	mob_list.push_back(test_mob3);
-
+	
 	// Initial render
-	mobs();
 	entities();
 	render(rogue, mob_list);
 	ui(rogue, mob_list);

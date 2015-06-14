@@ -1,5 +1,4 @@
-#ifndef GLOBALS_H
-#define GLOBALS_H
+#pragma once
 
 #include <vector>
 
@@ -110,5 +109,3 @@ enum Colors
 	COLOR_UI3 = 54,
 	COLOR_BUI3 = 55,
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ARCHITECT_H
-#define ARCHITECT_H
+#pragma once
 
 #include "Globals.h"
 
@@ -15,5 +14,3 @@ void put_stairs(Tile map[][300], Character & rogue);
 void generate_dungeon(Tile map[][300], Character & rogue);
 void generate_grass_pit(Tile map[][300], Character & rogue);
 void put_blob(Tile map[][300], int my, int mx, Tile blob[][300], int blob_y, int blob_x, int pos_y, int pos_x, bool passEmpty = false);
-
-#endif
