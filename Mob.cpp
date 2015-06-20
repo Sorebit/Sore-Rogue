@@ -16,36 +16,42 @@ Mob::Mob(std::string species)
 		name = "Rat";
 		tile = 'r';
 		maxhealth = 8;
-		action_rate = 1;
+		walk_rate = 1;
+		follow_time = 10;
 	}
 	else if(species == "frog")
 	{
 		name = "Frog";
 		tile = 'f';
 		maxhealth = 5;
-		action_rate = 2;
+		walk_rate = 6;
+		follow_time = -1;
 	}
 	else if(species == "troll")
 	{
 		name = "Troll";
 		tile = 't';
 		maxhealth = 50;
-		action_rate = 4; 		
+		walk_rate = 4; 
+		follow_time = 24;		
 	}
 	else if(species == "witch")
 	{
 		name = "Witch";
 		tile = 'w';
 		maxhealth = 15;
-		action_rate = 3;
+		walk_rate = 3;
+		follow_time = 27;
 	}
 
+	attack_rate = walk_rate;
 	health = maxhealth;
-	rate_counter = 0;
 }
 
 // Get attributes
-int Mob::getRate() { return action_rate; }
+int Mob::getAttackRate() { return attack_rate; }
+
+int Mob::getWalkRate() { return walk_rate; }
 
 std::pair <int, int> Mob::getPos() { return {y, x}; }
 
@@ -54,6 +60,15 @@ char Mob::getTile() { return tile; }
 std::string Mob::getName() { return name; }
 
 std::pair <int, int> Mob::getHealth() { return {health, maxhealth}; }
+
+int Mob::getFollowTime() { return follow_time; }
+
+int Mob::distFrom(int qy, int qx)
+{
+	int dy = abs(y - qy);
+	int dx = abs(x - qx);
+	return dx + dy;
+}
 
 // Actions
 void Mob::setSpawn(int py, int px)
@@ -174,6 +189,18 @@ void Mob::findPath(const int fy, const int fx)
 
 std::pair <int, int> Mob::getNextStep()
 {
+	// If mob is passive
+	if(follow_time == -1)
+	{
+		int first = 0, second = 0;
+		
+		if(rand() % 2)
+			first = ( rand() % 2 ) * 2 - 1; // -1 or 1
+		else
+			second = ( rand() % 2 ) * 2 - 1; // -1 or 1 
+		
+		return {first, second};
+	}
 	if(path_to_player.empty())
 		return {0, 0};
 	std::pair <int, int> step = path_to_player.top();

@@ -29,13 +29,21 @@ void wininit()
 
 	keypad(stdscr, true);
 	getmaxyx(stdscr, maxy, maxx);
-	maxx -= 25;
 	if(maxy > 300 || maxx > 300)
 	{
-		printf("Your screen is bigger than 300x300\nPlease reduce its size\n");
+		printw("Your terminal screen is bigger than 300x300\nPlease reduce its size\n");
+		getch();
 		endwin();
 		exit(1);
-	} 
+	}
+	if(maxy < 24 || maxx < 80)
+	{
+		printw("Your terminal screen is smaller than 80x24\nPlease increse its size\n");
+		getch();
+		endwin();
+		exit(1);
+	}
+	maxx -= 25;
 }
 
 void graphics_init()
@@ -150,10 +158,10 @@ void show_equipment()
 void show_mobs_nearby()
 {
 	int offset = 0;
-	for(unsigned int i = 0; i < mob_list.size(); i++)
+	for(unsigned int i = 0; i < mob_list.size() && (13 + offset) < maxy - 1; i++)
 	{
 		if(!mob_list[i].seesPlayer(rogue))
-			continue;
+//			continue;
 
 		attron(COLOR_PAIR(mob));
 		mvprintw(11 + offset, 0, "%c", mob_list[i].getTile());
@@ -170,8 +178,19 @@ void show_mobs_nearby()
 			attron( COLOR_PAIR(ui3 + (i > percent) ) );
 			mvprintw(12 + offset, i, "%c", healStr[i]);
 		}
-		
+		// test {
+		attron(COLOR_PAIR(text));
+		//mvprintw(13 + offset, 0, "Dist: %d", mob_list[i].distFrom(rogue.y, rogue.x));
+		if(mob_list[i].distFrom(rogue.y, rogue.x) == 1 )
+		{
+			//attack
+			
+			mvprintw(13 + offset, 10, "atk");
+		}
 		offset += 3;
+		// } test
+
+		//offset += 3;
 	}
 }
 
@@ -363,7 +382,7 @@ void render_mobs()
 		std::pair <int, int> pos = mob_list[i].getPos();
 		if(!map[pos.first][pos.second].seen)
 				continue;
-		if(mob_list[i].seesPlayer(rogue))
+		//if(mob_list[i].seesPlayer(rogue))
 		{
 			attron(COLOR_PAIR(mob));
 			mvprintw(pos.first, pos.second + 25, "%c", mob_list[i].getTile());

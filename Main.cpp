@@ -53,9 +53,16 @@ void see_all()
 
 int getUserInput()
 {
+	// Return values:
+	// 0 - quit
+	// 1 - move
+	// 2 - skip frame (nothing happens)
+
 	int key = getch();
+	int dy = 0, dx = 0;
 
 	map[rogue.y][rogue.x].occupied = false;
+
 	switch(key)
 	{
 	// Special keys
@@ -68,27 +75,34 @@ int getUserInput()
 		break;
 	// Movement keys
 	case up:
-		if(isPath(rogue.x, rogue.y - 1))
-			rogue.y--;
+		dy--;
 		break;
 	case down:
-		if(isPath(rogue.x, rogue.y + 1))
-			rogue.y++;
+		dy++;
 		break;
 	case left:
-		if(isPath(rogue.x - 1, rogue.y))
-			rogue.x--;
+		dx--;
 		break;
 	case right:
-		if(isPath(rogue.x + 1, rogue.y))
-			rogue.x++;
+		dx++;
 		break;
 	default:
 		map[rogue.y][rogue.x].occupied = true;
 		return 2;
 	}
-	map[rogue.y][rogue.x].occupied = true;
-	return 1;
+	if(isPath(rogue.x + dx, rogue.y + dy))
+	{
+		rogue.x += dx;
+		rogue.y += dy;
+		map[rogue.y][rogue.x].occupied = true;
+		return 1;
+	}
+	else
+	{
+		map[rogue.y][rogue.x].occupied = true;
+		return 2;
+	}
+	
 }
 
 void entities()
@@ -120,43 +134,44 @@ void entities()
 
 void mobs()
 {
+	// TO FIX
 	// Mobs should decide wheter to attack or move, depending on their status,
 	// health, distance from player etc
-	// From every
 	for(unsigned int i = 0; i < mob_list.size(); i++)
 	{
-		if(mob_list[i].seesPlayer(rogue))
-			mob_list[i].findPath(rogue.y, rogue.x);
+		// attack
+		if(++mob_list[i].attack_counter == mob_list[i].getAttackRate())
+			mob_list[i].attack_counter = 0;
+		if(mob_list[i].distFrom(rogue.y, rogue.x) == 1)
+		{
+			if(mob_list[i].getAttackRate() == -1)
+				continue;
 
-		if(++mob_list[i].rate_counter != mob_list[i].getRate())
+			rogue.exp++;
+
+		}
+
+		if(mob_list[i].seesPlayer(rogue))
+		{
+			mob_list[i].findPath(rogue.y, rogue.x);
+			mob_list[i].follow_timeout = mob_list[i].getFollowTime();
+		}
+		else
+		{
+			if(mob_list[i].follow_timeout > 0)
+				mob_list[i].follow_timeout--;
+
+			if(!mob_list[i].follow_timeout)
+				continue;
+		}
+
+		if(++mob_list[i].walk_counter != mob_list[i].getWalkRate())
 			continue;
 		else
-			mob_list[i].rate_counter = 0;
+			mob_list[i].walk_counter = 0;
 
 		mob_list[i].walk( mob_list[i].getNextStep() );
 	}
-}
-
-void pathfinding_test_map()
-{
-	for(int y = 0; y <= 50; y++)
-	{
-		for(int x = 0; x <= 50; x++)
-		{
-			map[y][x].tile = (!y || !x || y == 50 || x == 50) ? wall : path;
-			map[y][x].seen = true;
-		}
-	}
-
-	for(int y = 20; y <= 30; y++)
-	{
-		for(int x = 20; x <= 30; x++)
-		{
-			map[y][x].tile = (y == 20 || x == 20 || y == 30 || x == 30) ? wall : path;
-			map[y][x].seen = true;
-		}
-	}
-	map[25][20].tile = path;
 }
 
 int main()
@@ -179,6 +194,7 @@ int main()
 	rogue.level = 1;
 	rogue.strength = 12;
 	rogue.armor = 3;
+	rogue.nlvl = 24;
 
 	generate_dungeon(map, rogue);
 

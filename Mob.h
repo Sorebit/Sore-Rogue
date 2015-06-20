@@ -19,14 +19,21 @@ class Mob
 		char tile;
 		int x, y;
 		int health, maxhealth;
-		int action_rate;
+		int attack_rate;
+		int walk_rate;
+		int follow_time; // -1 means mob is passive and wont attack or follow the player
 		std::stack < std::pair <int, int> > path_to_player;
 		
 	public:
-		int rate_counter;
+		int attack_counter;
+		int walk_counter;
+		int follow_timeout;
 
 		// Get attributes
-		int getRate();
+		int getAttackRate();
+		int getWalkRate();
+		int getFollowTime();
+		int distFrom(int qy, int qx);
 		char getTile();
 		std::string getName();
 		std::pair <int, int> getHealth();
