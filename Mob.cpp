@@ -1,11 +1,11 @@
+// Sorbet - 2015
 #include "Mob.h"
 
 Mob::Mob(std::string species)
 {
 	// TODO:
-	// Losing interest after not seeing the player for n frames
 	// more species
-	// more attributes (damage, experience that they drop)
+	// more attributes (experience that they drop)
 	// special skills ?
 	// 
 
@@ -16,41 +16,55 @@ Mob::Mob(std::string species)
 		name = "Rat";
 		tile = 'r';
 		maxhealth = 8;
+		strength = 1;
+		armor = 0;
 		walk_rate = 1;
 		follow_time = 10;
+		luck = 45;
+		verbs = {"bit"};
 	}
 	else if(species == "frog")
 	{
 		name = "Frog";
 		tile = 'f';
 		maxhealth = 5;
+		strength = 0;
+		armor = 0;
 		walk_rate = 6;
 		follow_time = -1;
+		luck = 0;
 	}
 	else if(species == "troll")
 	{
 		name = "Troll";
 		tile = 't';
 		maxhealth = 50;
+		strength = 12;
+		armor = 12;
 		walk_rate = 4; 
-		follow_time = 24;		
+		follow_time = 24;
+		luck = 75;
+		verbs = {"slammed", "headbutted", "hit"};
 	}
 	else if(species == "witch")
 	{
 		name = "Witch";
 		tile = 'w';
 		maxhealth = 15;
+		strength = 10;
+		armor = 1;
 		walk_rate = 3;
 		follow_time = 27;
+		luck = 80;
+		verbs = {"struck"};
 	}
 
 	attack_rate = walk_rate;
 	health = maxhealth;
+	walk_counter = 0;
 }
 
 // Get attributes
-int Mob::getAttackRate() { return attack_rate; }
-
 int Mob::getWalkRate() { return walk_rate; }
 
 std::pair <int, int> Mob::getPos() { return {y, x}; }
@@ -62,6 +76,12 @@ std::string Mob::getName() { return name; }
 std::pair <int, int> Mob::getHealth() { return {health, maxhealth}; }
 
 int Mob::getFollowTime() { return follow_time; }
+
+int Mob::getLuck() { return luck; }
+
+int Mob::getStrength() { return strength; }
+
+int Mob::getArmor() { return armor; }
 
 int Mob::distFrom(int qy, int qx)
 {
@@ -195,9 +215,9 @@ std::pair <int, int> Mob::getNextStep()
 		int first = 0, second = 0;
 		
 		if(rand() % 2)
-			first = ( rand() % 2 ) * 2 - 1; // -1 or 1
+			first = (rand() % 2) ? 1 : -1;
 		else
-			second = ( rand() % 2 ) * 2 - 1; // -1 or 1 
+			second = ( rand() % 2 ) ? 1 : -1; 
 		
 		return {first, second};
 	}
@@ -216,3 +236,21 @@ void Mob::clearPath()
 		path_to_player.pop();
 	return;
 }
+
+int Mob::attack()
+{
+	// TODO
+	// Make an actuall attack calculator shit
+	if(rand() % 100 < getLuck() )
+	{
+		int damage = getStrength();
+		rogue.health -= damage;
+		return damage;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+std::string Mob::getVerb() { return verbs[rand() % verbs.size()]; }

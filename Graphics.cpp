@@ -1,5 +1,5 @@
+// Sorbet - 2015
 #include "Graphics.h"
-
 #include <ncurses.h>
 #include <cstdlib>
 #include <string>
@@ -38,19 +38,22 @@ void wininit()
 	}
 	if(maxy < 24 || maxx < 80)
 	{
-		printw("Your terminal screen is smaller than 80x24\nPlease increse its size\n");
+		printw("Your terminal screen is %dx%d\n", maxx, maxy);
+		printw("It should be at least 80x24\n");
+		printw("Please increse its size\n");
 		getch();
 		endwin();
 		exit(1);
 	}
 	maxx -= 25;
+	maxy -= 3;
 }
 
 void graphics_init()
 {
 	start_color();
 
-	// Make black be black
+	// Make black black
 	init_color(0, 0, 0, 0);
 
 	// Custom color definitons
@@ -80,7 +83,7 @@ void graphics_init()
 	init_color(COLOR_BUI1, 0, 0, 250);
 	init_color(COLOR_UI2, 41, 88, 610);
 	init_color(COLOR_BUI2, 0, 0, 150);
-	init_color(COLOR_UI3, 450, 0, 0);
+	init_color(COLOR_UI3, 500, 150, 100);
 	init_color(COLOR_BUI3, 300, 0, 0);
 
 	// Custom color pairs
@@ -158,10 +161,10 @@ void show_equipment()
 void show_mobs_nearby()
 {
 	int offset = 0;
-	for(unsigned int i = 0; i < mob_list.size() && (13 + offset) < maxy - 1; i++)
+	for(unsigned i = 0; i < mob_list.size() && (13 + offset) < maxy - 1; i++)
 	{
 		if(!mob_list[i].seesPlayer(rogue))
-//			continue;
+			continue;
 
 		attron(COLOR_PAIR(mob));
 		mvprintw(11 + offset, 0, "%c", mob_list[i].getTile());
@@ -173,24 +176,13 @@ void show_mobs_nearby()
 		std::string healStr = "         Health         ";
 		double percent = std::floor((double)health/maxhealth * 24);
 
-		for(unsigned int i = 0; i < 24; i++)
+		for(unsigned i = 0; i < 24; i++)
 		{
 			attron( COLOR_PAIR(ui3 + (i > percent) ) );
 			mvprintw(12 + offset, i, "%c", healStr[i]);
 		}
-		// test {
-		attron(COLOR_PAIR(text));
-		//mvprintw(13 + offset, 0, "Dist: %d", mob_list[i].distFrom(rogue.y, rogue.x));
-		if(mob_list[i].distFrom(rogue.y, rogue.x) == 1 )
-		{
-			//attack
-			
-			mvprintw(13 + offset, 10, "atk");
-		}
+		
 		offset += 3;
-		// } test
-
-		//offset += 3;
 	}
 }
 
@@ -223,9 +215,9 @@ void ui()
 
 	for(int bar = 0; bar < 3; bar++)
 	{
-		for(unsigned int i = 0; i < 24; i++)
+		for(unsigned i = 0; i < 24; i++)
 		{
-			if(i <= dStats[bar]) 
+			if(i < dStats[bar]) 
 				attron( COLOR_PAIR(ui1 + (bar % 2) * 3) );
 			else 
 				attron( COLOR_PAIR(bui1 + (bar % 2) * 3) );
@@ -256,7 +248,7 @@ void ui()
 	attron(A_BOLD);
 	attron(COLOR_PAIR(text));
 	s = "-- Depth: " + std::to_string(rogue.depth) + " --";
-	mvprintw(maxy - 1, (22 - s.length() ) / 2, "%s", s.c_str());
+	mvprintw(maxy + 2, (22 - s.length() ) / 2, "%s", s.c_str());
 	attroff(A_BOLD);
 
 }
@@ -287,13 +279,13 @@ void ray(float x1, float y1, float x2, float y2)
 
 	const int max_x = (int)x2;
 
-	const int max_length = 16; // testing 
-	int length = 0; // testing
+	const int max_length = 16; 
+	int length = 0;
 
 	for(int x = (int)x1; x < max_x; x++)
 	{
-		if(length > max_length && !swx) // testing
-			return; // testing
+		if(length > max_length && !swx)
+			return;
 		if(steep)
 		{
 			if(swx)
@@ -325,15 +317,15 @@ void ray(float x1, float y1, float x2, float y2)
 			y += ystep;
 			error += dx;
 		}
-		length++; // testing
+		length++;
 	}
 
 	int qx, qy;
 	length = 0;
 	while(!q.empty())
 	{
-		if(length++ > max_length) // testing
-			return; // testing
+		if(length++ > max_length)
+			return;
 		qy = q[q.size()-1].first;
 		qx = q[q.size()-1].second;
 		q.pop_back();
@@ -377,7 +369,7 @@ void render_player()
 
 void render_mobs()
 {
-	for(unsigned int i = 0; i < mob_list.size(); i++)
+	for(unsigned i = 0; i < mob_list.size(); i++)
 	{
 		std::pair <int, int> pos = mob_list[i].getPos();
 		if(!map[pos.first][pos.second].seen)
@@ -436,4 +428,28 @@ void render()
 	}
 	render_mobs();
 	render_player();
+}
+
+void message(std::string mes)
+{
+	// Do not display empty messages
+	if(mes == "")
+		return;
+
+	// Clear the padding first
+	attron(COLOR_PAIR(uitext));
+	for(int y = maxy; y < maxy + 3; y++)
+		for(int x = 25; x < maxx + 25; x++)
+			mvprintw(y, x, " ");
+
+	mvprintw(maxy, 25, messages_old[0].c_str());
+	mvprintw(maxy + 1, 25, messages_old[1].c_str());
+	
+	// Most recent is the brightest
+	attron(COLOR_PAIR(text));
+	mvprintw(maxy + 2, 25, mes.c_str());
+
+	// Update buffer
+	messages_old[0] = messages_old[1];
+	messages_old[1] = mes;
 }

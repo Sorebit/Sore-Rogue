@@ -1,3 +1,4 @@
+// Sorbet - 2015
 #pragma once
 
 #include <queue>
@@ -22,18 +23,21 @@ class Mob
 		int attack_rate;
 		int walk_rate;
 		int follow_time; // -1 means mob is passive and wont attack or follow the player
+		int luck;
+		int strength, armor;
 		std::stack < std::pair <int, int> > path_to_player;
+		std::vector <std::string> verbs;
 		
 	public:
-		int attack_counter;
 		int walk_counter;
 		int follow_timeout;
 
 		// Get attributes
-		int getAttackRate();
 		int getWalkRate();
 		int getFollowTime();
-		int distFrom(int qy, int qx);
+		int getLuck();
+		int getStrength();
+		int getArmor();
 		char getTile();
 		std::string getName();
 		std::pair <int, int> getHealth();
@@ -46,6 +50,9 @@ class Mob
 		std::pair <int, int> getNextStep();
 		void walk(std::pair <int, int> );
 		void clearPath();
+		int attack();
+		int distFrom(int qy, int qx);
+		std::string getVerb();
 
 		Mob(std::string spieces);
 };

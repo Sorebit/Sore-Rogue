@@ -1,4 +1,4 @@
-// Sorbet - (No copyrights whatsoever) 2015
+// Sorbet - 2015
 #include <ncurses.h>
 #include <unistd.h>
 #include <cstdlib>
@@ -23,7 +23,7 @@ std::vector <Mob> mob_list;
 
 Tile map[300][300];
 
-int mob_step = 1;
+std::string messages_old[2];
 
 bool isPath(int x, int y)
 {
@@ -38,16 +38,14 @@ bool isPath(int x, int y)
 	return true;
 }
 
+// TODO
+// Remove when finished
 void see_all()
 {
 	for(int y = 0; y < maxy; y++)
-	{
 		for(int x = 0; x < maxx; x++)
-		{
 			if(map[y][x].tile)
 				map[y][x].seen = as;
-		}
-	}
 	as ^= 1;
 }
 
@@ -134,23 +132,8 @@ void entities()
 
 void mobs()
 {
-	// TO FIX
-	// Mobs should decide wheter to attack or move, depending on their status,
-	// health, distance from player etc
-	for(unsigned int i = 0; i < mob_list.size(); i++)
-	{
-		// attack
-		if(++mob_list[i].attack_counter == mob_list[i].getAttackRate())
-			mob_list[i].attack_counter = 0;
-		if(mob_list[i].distFrom(rogue.y, rogue.x) == 1)
-		{
-			if(mob_list[i].getAttackRate() == -1)
-				continue;
-
-			rogue.exp++;
-
-		}
-
+	for(unsigned i = 0; i < mob_list.size(); i++)
+	{	
 		if(mob_list[i].seesPlayer(rogue))
 		{
 			mob_list[i].findPath(rogue.y, rogue.x);
@@ -165,12 +148,42 @@ void mobs()
 				continue;
 		}
 
-		if(++mob_list[i].walk_counter != mob_list[i].getWalkRate())
-			continue;
-		else
-			mob_list[i].walk_counter = 0;
+		if(++mob_list[i].walk_counter >= mob_list[i].getWalkRate())
+		{
+			// Passive mobs
+			if(mob_list[i].getFollowTime() == -1 )
+			{
+				mob_list[i].walk( mob_list[i].getNextStep() );
+				mob_list[i].walk_counter = 0;
+				continue;
+			}
 
-		mob_list[i].walk( mob_list[i].getNextStep() );
+			// Agressive mobs
+			std::string mes = "";
+			int dealt = -1;
+			if(mob_list[i].distFrom(rogue.y, rogue.x) == 2)
+			{
+				mob_list[i].walk( mob_list[i].getNextStep() );
+				mob_list[i].walk_counter = 0;
+				dealt = mob_list[i].attack();
+				
+			}
+			else if(mob_list[i].distFrom(rogue.y, rogue.x) == 1)
+			{
+				dealt = mob_list[i].attack();
+			}
+			else
+			{
+				mob_list[i].walk( mob_list[i].getNextStep() );
+				mob_list[i].walk_counter = 0;
+			}
+
+			if(dealt > 0)
+				mes = mob_list[i].getName() + " " + mob_list[i].getVerb() + " you for " + std::to_string(dealt) + " hp.";
+			else if(!dealt)
+				mes = mob_list[i].getName() + " missed a hit";
+			message(mes);
+		}
 	}
 }
 
@@ -181,14 +194,17 @@ int main()
 
 	graphics_init();
 
-	// Main menu: To-do
-	printw("Press any key to start\nQ to quit anytime.\n");
+	// TODO Main menu
+	printw("Welcome to the caves of your doom\n");
+	printw("Press any key to start\n");
+	printw("Q to quit anytime\n");
 	getch();
 	clear();
-
+	
+	// Hard-coded player
 	rogue.depth = 1;
-	rogue.health = 10;
-	rogue.maxhealth = 10;
+	rogue.health = 50;
+	rogue.maxhealth = 100;
 	rogue.nutr = 10;
 	rogue.maxnutr = 10;
 	rogue.level = 1;
@@ -198,6 +214,7 @@ int main()
 
 	generate_dungeon(map, rogue);
 
+	// Test mobs
 	Mob test_mob1("troll");
 	test_mob1.setSpawn(30, 30);
 	map[30][30].seen = true;
@@ -220,9 +237,15 @@ int main()
 
 	while(true)
 	{
+		// TODO
+		// Esc menu
+		// Equipment menu
 		input = getUserInput();
-		if(!input) 
-			break;
+		if(!input)
+			// TODO
+			// Menu 
+			rogue.health = 0;
+			//break;
 		if(input == 2)
 			continue;
 
@@ -230,6 +253,14 @@ int main()
 		entities();
 		render();
 		ui();
+		if(rogue.health <= 0)
+		{
+			// Maybe fade out the whole map and display something
+			message("You died...");
+			message("Press any key to contitnue");
+			getch();
+			break;
+		}
 	}
 
 	endwin();

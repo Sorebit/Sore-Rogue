@@ -1,3 +1,4 @@
+// Sorbet - 2015
 #pragma once
 
 #include "Globals.h"
@@ -12,3 +13,6 @@ void ray(float x1, float y1, float x2, float y2);
 void render_mobs();
 void render_player();
 void render();
+void message(std::string text);
+
+extern std::string messages_old[2];
