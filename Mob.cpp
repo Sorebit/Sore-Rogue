@@ -18,7 +18,7 @@ Mob::Mob(std::string species)
 		maxhealth = 8;
 		strength = 1;
 		armor = 0;
-		walk_rate = 1;
+		walk_rate = 2;
 		follow_time = 10;
 		luck = 45;
 		verbs = {"bit"};
@@ -33,6 +33,7 @@ Mob::Mob(std::string species)
 		walk_rate = 6;
 		follow_time = -1;
 		luck = 0;
+		verbs = {"???"};
 	}
 	else if(species == "troll")
 	{

@@ -25,6 +25,8 @@ Tile map[300][300];
 
 std::string messages_old[2];
 
+std::vector <Item> items;
+
 bool isPath(int x, int y)
 {
 	if(x < 0 || x > maxx - 1 || y < 0 || y > maxy - 1)
@@ -49,12 +51,147 @@ void see_all()
 	as ^= 1;
 }
 
+void entities()
+{
+	switch(map[rogue.y][rogue.x].tile)
+	{
+		case gold:
+			rogue.silver++;
+			map[rogue.y][rogue.x].tile = path;
+			break;
+		case key:
+			rogue.keys++;
+			map[rogue.y][rogue.x].tile = path;
+			break;
+		case door:
+			if(!map[rogue.y][rogue.x].door_open && rogue.keys)
+			{
+				map[rogue.y][rogue.x].door_open = true;
+				rogue.keys--;
+			}
+			break;
+		case stairs:
+			clear();
+			rogue.depth++;
+			generate_dungeon(map, rogue);
+			break;
+	}
+}
+
+void equipment()
+{
+	int _up =  maxy/2 - 10;
+	int _left = (maxx + 24)/2 - 26;
+	unsigned sel = 0, offset = 0, opt = 0;
+	unsigned opts[] = { 0, 7, 15};
+	bool esc = false;
+
+	while(true)
+	{
+		attron(COLOR_PAIR(eq1));
+		for(int y = _up; y < _up + 21; y++)
+		{
+			for(int x = _left; x < _left + 52; x++)
+			{
+				mvprintw(y, x, " ");
+			}
+		}
+		mvprintw(_up + 1, _left + 22, "Equipment");
+
+		mvprintw(_up + 3, _left + 2, "Wep: %s", rogue.wep_eq.getName().c_str());
+		mvprintw(_up + 4, _left + 2, "Arm: %s", rogue.arm_eq.getName().c_str());
+		mvprintw(_up + 5, _left + 2, "Spc: %s", rogue.spc_eq.getName().c_str());
+
+		for(unsigned it = 0 + offset; it < items.size(); ++it)
+		{
+			if(it - offset > 8)
+				break;
+			std::string str = items[it].getName();
+			mvprintw(_up + 7 + it - offset, _left + 4, str.c_str());
+		}
+
+		if(items.size() && sel - offset <= 8)
+			mvprintw(_up + 7 + sel - offset, _left + 2, ">");
+
+		mvprintw(_up + 17, _left + 2, "                                             ");
+		mvprintw(_up + 17, _left + 2, items[sel].getInfo().c_str());
+		mvprintw(_up + 19, _left + 2, "  Use    Toss    Sort");
+		mvprintw(_up + 19, _left + 2 + opts[opt], ">");
+
+		int key = getch();
+		switch(key)
+		{
+		case up:
+			if(sel)
+				--sel;
+			if((int)(sel - offset) < 0)
+				--offset;
+			break;
+		case down:
+			if(sel < items.size() - 1)
+				++sel;
+			if(sel - offset > 8)
+				++offset;
+			break;
+		case left:
+			if(opt)
+				--opt;
+			break;
+		case right:
+			if(opt < 2)
+				++opt;
+			break;
+		case enter:
+			switch(opt)
+			{
+			case 0:
+				// use
+				break;
+
+			case 1:
+				// toss
+				break;
+
+			case 2:
+				// select and move
+				break;
+
+			case 3:
+				// sort
+				break;
+			}
+		case 'e':
+			esc  = true;
+		}
+
+		if(esc)
+			break;
+	}
+
+	// Clear it up
+	attron(COLOR_PAIR(text));
+	for(int y = _up; y < _up + 21; y++)
+	{
+		for(int x = _left; x < _left + 52; x++)
+		{
+			mvprintw(y, x, " ");
+		}
+	}
+
+	// Render the screen to the state before opening equipment
+	entities();
+	render();
+	ui();
+}
+
+
 int getUserInput()
 {
 	// Return values:
 	// 0 - quit
-	// 1 - move
-	// 2 - skip frame (nothing happens)
+	// 1 - move or attack
+	// 2 - equipment
+	// 3 - skip frame (nothing happens)
 
 	int key = getch();
 	int dy = 0, dx = 0;
@@ -84,9 +221,15 @@ int getUserInput()
 	case right:
 		dx++;
 		break;
+	case eq:
+		return 2;
 	default:
 		map[rogue.y][rogue.x].occupied = true;
-		return 2;
+		return 3;
+	}
+	if(map[rogue.x + dx][rogue.y + dy].occupied)
+	{
+		//attack
 	}
 	if(isPath(rogue.x + dx, rogue.y + dy))
 	{
@@ -98,37 +241,11 @@ int getUserInput()
 	else
 	{
 		map[rogue.y][rogue.x].occupied = true;
-		return 2;
+		return 3;
 	}
 	
 }
 
-void entities()
-{
-	switch(map[rogue.y][rogue.x].tile)
-	{
-		case gold:
-			rogue.silver++;
-			map[rogue.y][rogue.x].tile = path;
-			break;
-		case key:
-			rogue.keys++;
-			map[rogue.y][rogue.x].tile = path;
-			break;
-		case door:
-			if(!map[rogue.y][rogue.x].door_open && rogue.keys)
-			{
-				map[rogue.y][rogue.x].door_open = true;
-				rogue.keys--;
-			}
-			break;
-		case stairs:
-			clear();
-			rogue.depth++;
-			generate_dungeon(map, rogue);
-			break;
-	}
-}
 
 void mobs()
 {
@@ -187,6 +304,15 @@ void mobs()
 	}
 }
 
+void start_menu()
+{
+	printw("Welcome to the caves of your doom\n");
+	printw("Press any key to start\n");
+	printw("Q to quit anytime\n");
+	getch();
+	clear();
+}
+
 int main()
 {	
 	wininit();
@@ -194,12 +320,7 @@ int main()
 
 	graphics_init();
 
-	// TODO Main menu
-	printw("Welcome to the caves of your doom\n");
-	printw("Press any key to start\n");
-	printw("Q to quit anytime\n");
-	getch();
-	clear();
+	start_menu();
 	
 	// Hard-coded player
 	rogue.depth = 1;
@@ -211,6 +332,54 @@ int main()
 	rogue.strength = 12;
 	rogue.armor = 3;
 	rogue.nlvl = 24;
+
+	Item* we = new Item("Dagger", weapon, 5);
+	Item* ar = new Item("Worn Chestplate", armor, 3);
+	Item* ac = new Item("Old feather", special, 0);
+
+	Item* p1 = new Item("Lesser Potion", consumable, less_heal);
+	Item* p2 = new Item("Greater Potion", consumable, great_heal);
+	Item* p3 = new Item("Strength Potion", consumable, strength);
+	Item* p4 = new Item("Invisibility Potion", consumable, invis);
+	Item* p5 = new Item("Weakness Potion", consumable, weak);
+	Item* p6 = new Item("Poison Potion", consumable, poison);
+
+	Item* s1 = new Item("Rat tooth", special, tooth);
+	Item* s2 = new Item("Witch stone", special, stone);
+	Item* s3 = new Item("Harpy feather", special, feather);
+	Item* s4 = new Item("Troll tallow", special, tallow);
+	Item* s5 = new Item("Spider eye", special, eye);
+
+	items.push_back(*p1);
+	items.push_back(*p2);
+	items.push_back(*p3);
+	items.push_back(*p4);
+	items.push_back(*p5);
+	items.push_back(*p6);
+
+	items.push_back(*s1);
+	items.push_back(*s2);
+	items.push_back(*s3);
+	items.push_back(*s4);
+	items.push_back(*s5);
+
+	rogue.wep_eq = *we;
+	rogue.arm_eq = *ar;
+	//rogue.spc_eq = *ac;
+	delete we;
+	delete ar;
+	delete ac;
+	delete p1;
+	delete p2;
+	delete p3;
+	delete p4;
+	delete p5;
+	delete p6;
+	delete s1;
+	delete s2;
+	delete s3;
+	delete s4;
+	delete s5;
 
 	generate_dungeon(map, rogue);
 
@@ -229,6 +398,11 @@ int main()
 	test_mob3.setSpawn(20, 20);
 	map[20][20].seen = true;
 	mob_list.push_back(test_mob3);
+
+	Mob test_mob4("rat");
+	test_mob4.setSpawn(35, 35);
+	map[35][35].seen = true;
+	mob_list.push_back(test_mob4);
 	
 	// Initial render
 	entities();
@@ -238,21 +412,31 @@ int main()
 	while(true)
 	{
 		// TODO
-		// Esc menu
+		// Pause menu
+		// Actually why would you pause a turn based game with no time events?
 		// Equipment menu
 		input = getUserInput();
 		if(!input)
-			// TODO
-			// Menu 
+		{
+			message("You stabbed yourself in the face for " + std::to_string(rogue.maxhealth)+ " hp.");
 			rogue.health = 0;
 			//break;
-		if(input == 2)
+		}
+		else if(input == 2)
+		{
+			equipment();
 			continue;
+		}
+		else if(input == 3)
+		{
+			continue;
+		}
 
 		mobs();
 		entities();
 		render();
 		ui();
+
 		if(rogue.health <= 0)
 		{
 			// Maybe fade out the whole map and display something

@@ -2,6 +2,7 @@
 #pragma once
 
 #include <vector>
+#include "Item.h"
 
 extern std::vector <char> tileset[];
 
@@ -14,7 +15,8 @@ struct Character
 	int strength, armor; 
 	int exp, level, nlvl; 
 	int nutr, maxnutr;
-	int silver, keys; 
+	int silver, keys;
+	Item wep_eq, arm_eq, spc_eq;
 };
 
 extern Character rogue;
@@ -35,6 +37,8 @@ enum keyboard
 	left = 260,
 	right = 261,
 	quit = 113,
+	eq = 101,
+	enter = 32,
 	plsstop = 108,
 };
 
@@ -79,6 +83,7 @@ enum Tiles
 	ui3 = 55,
 	bui3 = 56,
 	uitext = 57,
+	eq1 = 58,
 };
 
 enum Colors 
@@ -111,4 +116,5 @@ enum Colors
 	COLOR_BUI2 = 53,
 	COLOR_UI3 = 54,
 	COLOR_BUI3 = 55,
+	COLOR_EQ = 56,
 };

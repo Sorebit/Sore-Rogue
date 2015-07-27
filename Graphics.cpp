@@ -85,6 +85,7 @@ void graphics_init()
 	init_color(COLOR_BUI2, 0, 0, 150);
 	init_color(COLOR_UI3, 500, 150, 100);
 	init_color(COLOR_BUI3, 300, 0, 0);
+	init_color(COLOR_EQ, 20, 20, 20);
 
 	// Custom color pairs
 
@@ -133,28 +134,24 @@ void graphics_init()
 	init_pair(bui3, COLOR_GREY, COLOR_BUI3);
 	init_pair(uitext, COLOR_GREY, COLOR_BLACK);
 
+	init_pair(eq1, COLOR_WHITE, COLOR_EQ);
+
 	// Cursor and invisible input
 	curs_set(0);
 	noecho();
 }
 
-void show_equipment()
+void quick_use()
 {
-	// NOTE: Item name can't be longer than 20 chars
-	// An item class?
 	attron(A_BOLD);
 	attron(COLOR_PAIR(text));
-	mvprintw(6, 0, "        Equipment       ");
+	mvprintw(6, 0, "        Quick use       ");
 	attroff(A_BOLD);
 
 	attron(COLOR_PAIR(uitext));
-	std::string s = "Silver: " + std::to_string(rogue.silver);
-	mvprintw(7, 2 + (22 - s.length() ) / 2, "%s",  s.c_str());
-	mvprintw(7, 0, "-");
-	mvprintw(7, 23, "-");
-
-	mvprintw(8, 0, "-      Canned meat     -");
-	mvprintw(9, 0, "-       Rusty key      -");
+	mvprintw(7, 0, "- a  Lesser Potion     -");	
+	mvprintw(8, 0, "- s  Greater Potion    -");
+	mvprintw(9, 0, "- d  Weakness Potion   -");
 
 }
 
@@ -241,7 +238,7 @@ void ui()
 	std::string s = "Str: " + std::to_string(rogue.strength) + " Armor: " + std::to_string(rogue.armor);
 	mvprintw(4, 1 + (22 - s.length() ) / 2, "%s",  s.c_str());
 	
-	show_equipment();
+	quick_use();
 
 	show_mobs_nearby();
 
