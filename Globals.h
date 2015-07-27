@@ -5,6 +5,7 @@
 #include "Item.h"
 
 extern std::vector <char> tileset[];
+extern std::vector <Item> items;
 
 extern int maxy, maxx, comp_count, max_lake, max_lake_size, comp[300][300], count[300];
 
@@ -38,7 +39,7 @@ enum keyboard
 	right = 261,
 	quit = 113,
 	eq = 101,
-	enter = 32,
+	enter = 10,
 	plsstop = 108,
 };
 

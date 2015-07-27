@@ -450,3 +450,104 @@ void message(std::string mes)
 	messages_old[0] = messages_old[1];
 	messages_old[1] = mes;
 }
+
+void equipment()
+{
+	int _up =  maxy/2 - 10;
+	int _left = (maxx + 24)/2 - 26;
+	unsigned sel = 0, offset = 0, opt = 0;
+	unsigned opts[] = { 0, 7, 15};
+	bool esc = false;
+
+	while(true)
+	{
+		attron(COLOR_PAIR(eq1));
+		for(int y = _up; y < _up + 21; y++)
+		{
+			for(int x = _left; x < _left + 52; x++)
+			{
+				mvprintw(y, x, " ");
+			}
+		}
+		mvprintw(_up + 1, _left + 22, "Equipment");
+
+		mvprintw(_up + 3, _left + 2, "Wep: %s", rogue.wep_eq.getName().c_str());
+		mvprintw(_up + 4, _left + 2, "Arm: %s", rogue.arm_eq.getName().c_str());
+		mvprintw(_up + 5, _left + 2, "Spc: %s", rogue.spc_eq.getName().c_str());
+
+		for(unsigned it = 0 + offset; it < items.size(); ++it)
+		{
+			if(it - offset > 8)
+				break;
+			std::string str = items[it].getName();
+			mvprintw(_up + 7 + it - offset, _left + 4, str.c_str());
+		}
+
+		if(items.size() && sel - offset <= 8)
+			mvprintw(_up + 7 + sel - offset, _left + 2, ">");
+
+		mvprintw(_up + 17, _left + 2, "                                             ");
+		mvprintw(_up + 17, _left + 2, items[sel].getInfo().c_str());
+		mvprintw(_up + 19, _left + 2, "  Use    Toss    Sort");
+		mvprintw(_up + 19, _left + 2 + opts[opt], ">");
+
+		int key = getch();
+		switch(key)
+		{
+		case up:
+			if(sel)
+				--sel;
+			if((int)(sel - offset) < 0)
+				--offset;
+			break;
+		case down:
+			if(sel < items.size() - 1)
+				++sel;
+			if(sel - offset > 8)
+				++offset;
+			break;
+		case left:
+			if(opt)
+				--opt;
+			break;
+		case right:
+			if(opt < 2)
+				++opt;
+			break;
+		case enter:
+			switch(opt)
+			{
+			case 0:
+				// use
+				break;
+
+			case 1:
+				// toss
+				break;
+
+			case 2:
+				// select and move
+				break;
+
+			case 3:
+				// sort
+				break;
+			}
+		case 'e':
+			esc  = true;
+		}
+
+		if(esc)
+			break;
+	}
+
+	// Clear it up
+	attron(COLOR_PAIR(text));
+	for(int y = _up; y < _up + 21; y++)
+	{
+		for(int x = _left; x < _left + 52; x++)
+		{
+			mvprintw(y, x, " ");
+		}
+	}
+}
