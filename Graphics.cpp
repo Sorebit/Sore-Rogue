@@ -235,7 +235,7 @@ void ui()
 
 	attron(COLOR_PAIR(uitext));
 
-	std::string s = "Str: " + std::to_string(rogue.strength) + " Armor: " + std::to_string(rogue.armor);
+	std::string s = "Str: " + std::to_string(rogue.strength) + " Def: " + std::to_string(rogue.defense);
 	mvprintw(4, 1 + (22 - s.length() ) / 2, "%s",  s.c_str());
 	
 	quick_use();
@@ -487,7 +487,7 @@ void equipment()
 			mvprintw(_up + 7 + sel - offset, _left + 2, ">");
 
 		mvprintw(_up + 17, _left + 2, "                                             ");
-		mvprintw(_up + 17, _left + 2, items[sel].getInfo().c_str());
+		mvprintw(_up + 17, _left + 2, items[sel].getSummary().c_str());
 		mvprintw(_up + 19, _left + 2, "  Use    Toss    Sort");
 		mvprintw(_up + 19, _left + 2 + opts[opt], ">");
 
@@ -518,21 +518,21 @@ void equipment()
 			switch(opt)
 			{
 			case 0:
-				// use
+				items[sel].use();
 				break;
 
 			case 1:
 				// toss
+				items[sel].toss();
 				break;
 
 			case 2:
-				// select and move
-				break;
-
-			case 3:
 				// sort
+				//std::sort(items.begin(), items.end());
+				message("Items sorted. Not really");
 				break;
 			}
+			break;
 		case 'e':
 			esc  = true;
 		}

@@ -33,8 +33,6 @@ bool isPath(int x, int y)
 		return false;
 	else if(map[y][x].tile == zero || map[y][x].tile == wall || map[y][x].tile == pit || map[y][x].tile == water)
 		return false;
-	else if(map[y][x].tile == door)
-		return (rogue.keys || map[y][x].door_open);
 	if(map[y][x].occupied)
 		return false;
 	return true;
@@ -55,21 +53,6 @@ void entities()
 {
 	switch(map[rogue.y][rogue.x].tile)
 	{
-		case gold:
-			rogue.silver++;
-			map[rogue.y][rogue.x].tile = path;
-			break;
-		case key:
-			rogue.keys++;
-			map[rogue.y][rogue.x].tile = path;
-			break;
-		case door:
-			if(!map[rogue.y][rogue.x].door_open && rogue.keys)
-			{
-				map[rogue.y][rogue.x].door_open = true;
-				rogue.keys--;
-			}
-			break;
 		case stairs:
 			clear();
 			messages_old[0] = "";
@@ -198,6 +181,21 @@ void mobs()
 	}
 }
 
+void init_player()
+{
+	// Hard-coded player
+	rogue.depth = 1;
+	rogue.health = 50;
+	rogue.maxhealth = 100;
+	rogue.nutr = 10;
+	rogue.maxnutr = 10;
+	rogue.level = 1;
+	rogue.strength = 12;
+	rogue.defense = 0;
+	rogue.nlvl = 24;
+	
+}
+
 void start_menu()
 {
 	printw("Welcome to the caves of your doom\n");
@@ -216,16 +214,7 @@ int main()
 
 	start_menu();
 	
-	// Hard-coded player
-	rogue.depth = 1;
-	rogue.health = 50;
-	rogue.maxhealth = 100;
-	rogue.nutr = 10;
-	rogue.maxnutr = 10;
-	rogue.level = 1;
-	rogue.strength = 12;
-	rogue.armor = 3;
-	rogue.nlvl = 24;
+	init_player();
 
 	Item* w1 = new Item(weapon, dagger);
 	Item* w2 = new Item(weapon, copper);
@@ -348,7 +337,6 @@ int main()
 		// TODO
 		// Pause menu
 		// Actually why would you pause a turn based game with no time events?
-		// Equipment menu
 		input = getUserInput();
 		if(!input)
 		{

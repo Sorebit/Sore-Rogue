@@ -13,10 +13,11 @@ struct Character
 {
 	int x, y, depth; 
 	int health, maxhealth; 
-	int strength, armor; 
+	int strength;
+	int attack, defense;
 	int exp, level, nlvl; 
 	int nutr, maxnutr;
-	int silver, keys;
+	int silver;
 	Item wep_eq, arm_eq, spc_eq;
 };
 

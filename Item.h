@@ -1,7 +1,8 @@
 // Sorbet - 2015
 //
-// IDEAS:
-// Colorful potions:
+// Ideas:
+//
+// COLORFUL POTIONS:
 // potions have fixed random colors set on start of the game
 // e.x. green - strength, black - poison,
 // player doesn't know their effect untill used
@@ -38,12 +39,23 @@ class Item
 	int getId();
 	int getValue();
 	std::string getName();	
-	std::string getInfo();
+	std::string getSummary();
 	std::string getMessage();
-	void use();
+
+	void setType(int _type);
+	void setId(int _id);
+	void setValue(int _value);
+	void setName(std::string _name);
+	void setSummary(std::string _summary);
+	void setMessage(std::string _pickup_message);
+
+	void swap(Item _item);
+	bool use();
+	bool toss();
 
 	Item();
-	Item(std::string _name, int _type, int _value);
 	Item(int _type, int _id);
+	Item(std::string _name, int _type, int _value);
+	Item(int _type, int _id, int _value, std::string _name, std::string _summary, std::string _message);
 	~Item();
 };
