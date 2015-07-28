@@ -14,6 +14,7 @@ void render_mobs();
 void render_player();
 void render();
 void message(std::string text);
+void erase_current_item();
 void equipment();
 
 extern std::string messages_old[2];

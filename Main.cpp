@@ -1,4 +1,31 @@
 // Sorbet - 2015
+//
+// Ideas:
+//
+// COLORFUL POTIONS:
+// potions have fixed random colors set on start of the game
+// e.x. green - strength, black - poison,
+// player doesn't know their effect untill used
+//
+// ARMOR AND WEAPONS:
+// player can't equip them (or can but with downsides) when their strength
+// is less than required from a weapon or armor
+//
+// BETTER SUMMARIES:
+// each item should have a short summary
+//
+// STATUSES:
+// some mobs or items can give player a status in which he has to obey special conditions
+// for each status there would be a bar in the ui, below health
+// it would turn dark from right to left
+// e.x. poisoned - lasts 50 steps; player loses 5 - 10 HP every 10 steps
+//				   could be used by some bosses or medium mobs
+// e.x. invisibility - lasts 25 steps; monsters lose track of the player untill he appears
+//					   could be used to escape from tight cluthces etc.
+// e.x. confused - lasts 25 steps; player has higher miss chance and sometimes
+//                 doesn't follow the input directions
+// e.x. weakness - lasts 35 steps; player has lowered defense
+
 #include <ncurses.h>
 #include <unistd.h>
 #include <cstdlib>
@@ -11,11 +38,13 @@
 #include "Architect.h"
 #include "Mob.h"
 
+const int inf = 1 << 30;
 
 std::vector <char> tileset[] = {{'?'}, {'.'}, {'"'}, {':'}, {'.'}, {'='}, {'#'}, {'~', '-'}, 
 								{'.'}, {'@'}, {'&'}, {'o'}, {'+', '.'}, {'1'}, {'\\'}}; 
 
 int cy, cx, input, maxy, maxx, comp_count = 1, max_lake, max_lake_size, comp[300][300], count[300], as = 0;
+unsigned sel = 0, offset = 0;
 
 Character rogue;
 
@@ -181,39 +210,69 @@ void mobs()
 	}
 }
 
+void statuses()
+{
+	for(int st = 0; st < 4; ++st)
+	{
+		if(rogue.status[st] > 0)
+			--rogue.status[st];
+		switch(st)
+		{
+			case poisoned:
+				if(rogue.status[poisoned] && rogue.status[poisoned] % 10 == 0)
+				{
+					rogue.health -= 2;
+					message("You took 2 HP from being poisoned.");
+				}
+				break;
+			case weak:
+				// less defense
+				break;
+			case confused:
+				// not always go where the player wants
+				break;
+			case invisible:
+				// should do something in mobs()
+				break;
+		}
+	}
+}
+
 void init_player()
 {
 	// Hard-coded player
 	rogue.depth = 1;
-	rogue.health = 50;
+	rogue.health = 13;
 	rogue.maxhealth = 100;
 	rogue.nutr = 10;
 	rogue.maxnutr = 10;
 	rogue.level = 1;
-	rogue.strength = 12;
-	rogue.defense = 0;
+	rogue.exp = 0;
+	rogue.strength = 6;
 	rogue.nlvl = 24;
 	
+	rogue.attack = rogue.strength/2;
+	rogue.defense = rogue.strength/2;
 }
 
 void start_menu()
 {
 	printw("Welcome to the caves of your doom\n");
+	printw("Arrow keys to move, E to open equipment, Enter or W to select, Q to die\n");
 	printw("Press any key to start\n");
-	printw("Q to quit anytime\n");
 	getch();
 	clear();
 }
 
 int main()
 {	
-	wininit();
 	srand(time(NULL));
 
+	wininit();
 	graphics_init();
 
 	start_menu();
-	
+
 	init_player();
 
 	Item* w1 = new Item(weapon, dagger);
@@ -231,11 +290,14 @@ int main()
 	Item* a6 = new Item(armor, orc);
 
 	Item* p1 = new Item(consumable, less_heal);
+	p1->setQuantity(3);
 	Item* p2 = new Item(consumable, great_heal);
 	Item* p3 = new Item(consumable, strength);
+	p3->setQuantity(5);
 	Item* p4 = new Item(consumable, invis);
-	Item* p5 = new Item(consumable, weak);
+	Item* p5 = new Item(consumable, weakness);
 	Item* p6 = new Item(consumable, poison);
+	p6->setQuantity(2);
 
 	Item* s1 = new Item(special, tooth);
 	Item* s2 = new Item(special, rune);
@@ -247,16 +309,16 @@ int main()
 	items.push_back(*w1);
 	items.push_back(*w2);
 	items.push_back(*w3);
-	items.push_back(*w4);
-	items.push_back(*w5);
-	items.push_back(*w6);
+	//items.push_back(*w4);
+	//items.push_back(*w5);
+	//items.push_back(*w6);
 
 	items.push_back(*a1);
 	items.push_back(*a2);
 	items.push_back(*a3);
-	items.push_back(*a4);
-	items.push_back(*a5);
-	items.push_back(*a6);
+	//items.push_back(*a4);
+	//items.push_back(*a5);
+	//items.push_back(*a6);
 
 	items.push_back(*p1);
 	items.push_back(*p2);
@@ -267,14 +329,20 @@ int main()
 
 	items.push_back(*s1);
 	items.push_back(*s2);
-	items.push_back(*s3);
-	items.push_back(*s4);
-	items.push_back(*s5);
-	items.push_back(*s6);
+	//items.push_back(*s3);
+	//items.push_back(*s4);
+	//items.push_back(*s5);
+	//items.push_back(*s6);*/
 
-	rogue.wep_eq = *w1;
-	rogue.arm_eq = *a1;
-	rogue.spc_eq = *s2;
+	//items.push_back(*w1);
+	//items.push_back(*a1);
+	//items.push_back(*p1);
+	//items.push_back(*p2);
+	//items.push_back(*s1);
+
+	//rogue.wep_eq = *w1;
+	//rogue.arm_eq = *a1;
+	//rogue.spc_eq = *s2;
 	
 	delete w1;
 	delete w2;
@@ -360,6 +428,7 @@ int main()
 		}
 
 		mobs();
+		statuses();
 		entities();
 		render();
 		ui();

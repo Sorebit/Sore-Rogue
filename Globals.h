@@ -4,10 +4,21 @@
 #include <vector>
 #include "Item.h"
 
+extern const int inf;
+
 extern std::vector <char> tileset[];
 extern std::vector <Item> items;
 
 extern int maxy, maxx, comp_count, max_lake, max_lake_size, comp[300][300], count[300];
+extern unsigned sel, offset;
+
+enum Statuses
+{
+	poisoned,
+	weak,
+	confused,
+	invisible,
+};
 
 struct Character
 {
@@ -18,6 +29,7 @@ struct Character
 	int exp, level, nlvl; 
 	int nutr, maxnutr;
 	int silver;
+	int status[4];
 	Item wep_eq, arm_eq, spc_eq;
 };
 
@@ -38,8 +50,8 @@ enum keyboard
 	up = 259,
 	left = 260,
 	right = 261,
-	quit = 113,
-	eq = 101,
+	quit = 'q',
+	eq = 'e',
 	enter = 10,
 	plsstop = 108,
 };
@@ -78,12 +90,12 @@ enum Tiles
 	okey = 33,
 	ostairs = 34,
 	//UI
-	ui1 = 50,
-	bui1 = 51,
+	ui1 = 51,
+	dark_ui1 = 52,
 	ui2 = 53,
-	bui2 = 54,
+	dark_ui2 = 54,
 	ui3 = 55,
-	bui3 = 56,
+	dark_ui3 = 56,
 	uitext = 57,
 	eq1 = 58,
 };

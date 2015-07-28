@@ -16,7 +16,7 @@ void wininit()
 	}
 	if(!has_colors()) 
 	{
-		printf("This terminal does not support colours.\n");
+		printf("Your terminal does not support colours.\n");
 		endwin();
 		exit(1);
 	}
@@ -125,13 +125,16 @@ void graphics_init()
 	init_pair(gold, COLOR_GOLD, COLOR_DARK_BLUE);
 	init_pair(ogold, COLOR_OOV_GOLD, COLOR_OOV_BLUE);
 
+	// Status bar colors
 	init_pair(text, COLOR_WHITE, COLOR_BLACK);
 	init_pair(ui1, COLOR_GREY, COLOR_UI1);
-	init_pair(bui1, COLOR_GREY, COLOR_BUI1);
+	init_pair(dark_ui1, COLOR_GREY, COLOR_BUI1);
 	init_pair(ui2, COLOR_GREY, COLOR_UI2);
-	init_pair(bui2, COLOR_GREY, COLOR_BUI2);
+	init_pair(dark_ui2, COLOR_GREY, COLOR_BUI2);
+
+	// Mob health bar colors
 	init_pair(ui3, COLOR_GREY, COLOR_UI3);
-	init_pair(bui3, COLOR_GREY, COLOR_BUI3);
+	init_pair(dark_ui3, COLOR_GREY, COLOR_BUI3);
 	init_pair(uitext, COLOR_GREY, COLOR_BLACK);
 
 	init_pair(eq1, COLOR_WHITE, COLOR_EQ);
@@ -155,18 +158,18 @@ void quick_use()
 
 }
 
-void show_mobs_nearby()
+void show_mobs_nearby(int _off)
 {
-	int offset = 0;
-	for(unsigned i = 0; i < mob_list.size() && (13 + offset) < maxy - 1; i++)
+	int offset = _off;
+	for(unsigned i = 0; i < mob_list.size() && (5 + offset) < maxy - 1; i++)
 	{
 		if(!mob_list[i].seesPlayer(rogue))
 			continue;
 
 		attron(COLOR_PAIR(mob));
-		mvprintw(11 + offset, 0, "%c", mob_list[i].getTile());
+		mvprintw(3 + offset, 0, "%c", mob_list[i].getTile());
 		attron(COLOR_PAIR(text));
-		mvprintw(11 + offset, 1, ": %s", mob_list[i].getName().c_str());
+		mvprintw(3 + offset, 1, ": %s", mob_list[i].getName().c_str());
 
 		int health = mob_list[i].getHealth().first;
 		int maxhealth = mob_list[i].getHealth().second;
@@ -176,7 +179,7 @@ void show_mobs_nearby()
 		for(unsigned i = 0; i < 24; i++)
 		{
 			attron( COLOR_PAIR(ui3 + (i > percent) ) );
-			mvprintw(12 + offset, i, "%c", healStr[i]);
+			mvprintw(4 + offset, i, "%c", healStr[i]);
 		}
 		
 		offset += 3;
@@ -195,6 +198,7 @@ void ui()
 		}
 	}
 
+	// Show basic info: color, level
 	attron(A_BOLD);
 	attron(COLOR_PAIR(player));
 	mvprintw(0, 0, "@");
@@ -202,45 +206,74 @@ void ui()
 	mvprintw(0, 1, ": You, Level %d       ", rogue.level);
 	attroff(A_BOLD);
 
-	std::string sStats[3] = {"         Health         ", "        Nutrition       ", "       Experience       "};
+	std::string sStats[] = {"         Health         ", "       Experience       ", 
+							"        Poisoned        ", "          Weak          ", 
+							"        Confused        ", "        Invisible       "};
 
+	// Calculate the percentage of bar used by a stat
 	double hea = std::floor((double)rogue.health/rogue.maxhealth * 24);
-	double nut = std::floor((double)rogue.nutr/rogue.maxnutr * 24);
 	double ex = std::floor((double)rogue.exp/rogue.nlvl * 24);
+	double poi = std::floor((double)rogue.status[poisoned]/50 * 24);
+	double wea = std::floor((double)rogue.status[weak]/35 * 24);
+	double con = std::floor((double)rogue.status[confused]/25 * 24);
+	double inv = std::floor((double)rogue.status[invisible]/25 * 24);
 
-	double dStats[3] = {hea, nut, ex};
+	double dStats[] = {hea, ex, poi, wea, con, inv};
 
-	for(int bar = 0; bar < 3; bar++)
+	int bar = 0;
+
+	for(int st = 0; st < 6; ++st)
 	{
+		if(st >= 2 && dStats[st] <= 0)
+			continue;
+		
+		int col = (bar % 2) ? ui2 : ui1;
+		bool changed = false;
+
 		for(unsigned i = 0; i < 24; i++)
 		{
-			if(i < dStats[bar]) 
-				attron( COLOR_PAIR(ui1 + (bar % 2) * 3) );
-			else 
-				attron( COLOR_PAIR(bui1 + (bar % 2) * 3) );
-			mvprintw(bar + 1, i, "%c", sStats[bar][i]);
-			if(bar == 2)
+			if(i > (unsigned)dStats[st] && !changed)
 			{
-				attron(A_BOLD);
-				if(ex > 0) 
-					attron( COLOR_PAIR(ui1) );
-				mvprintw(bar + 1, 0, "%d", rogue.level);
-				if(ex < 21)
-					attron( COLOR_PAIR(bui1) );
-				mvprintw(bar + 1, 24 - (rogue.level > 10) - 1, "%d", rogue.level + 1);
-				attroff(A_BOLD);
+				changed = true;
+				++col;
 			}
+
+			attron( COLOR_PAIR(col) );
+				
+			mvprintw(bar + 1, i, "%c", sStats[st][i]);
+
 		}
+
+		// 0 health display fix
+		if(!bar && hea == 0)
+		{
+			attron(COLOR_PAIR(dark_ui1));
+			mvprintw(1, 0, " ");
+		}
+
+		// Add levels to experience bar
+		if(bar == 1)
+		{
+			attron(A_BOLD);
+			if(ex > 0) 
+				attron( COLOR_PAIR(ui2) );
+			mvprintw(bar + 1, 0, "%d", rogue.level);
+			if(ex < 21)
+				attron( COLOR_PAIR(dark_ui2) );
+			mvprintw(bar + 1, 24 - (rogue.level > 10) - 1, "%d", rogue.level + 1);
+			attroff(A_BOLD);
+		}
+		bar++;
 	}
 
 	attron(COLOR_PAIR(uitext));
 
 	std::string s = "Str: " + std::to_string(rogue.strength) + " Def: " + std::to_string(rogue.defense);
-	mvprintw(4, 1 + (22 - s.length() ) / 2, "%s",  s.c_str());
+	mvprintw(bar + 1, 1 + (22 - s.length() ) / 2, "%s",  s.c_str());
 	
-	quick_use();
+	//quick_use();
 
-	show_mobs_nearby();
+	show_mobs_nearby(bar);
 
 	attron(A_BOLD);
 	attron(COLOR_PAIR(text));
@@ -352,14 +385,23 @@ void ray(float x1, float y1, float x2, float y2)
 
 void render_player()
 {
-	if(map[rogue.y][rogue.x].tile == edge)
-		init_pair(player, COLOR_WHITE, COLOR_BLUE);
-	else if(map[rogue.y][rogue.x].tile == door || map[rogue.y][rogue.x].tile == bridge)
-		init_pair(player, COLOR_WHITE, COLOR_BROWN);
-	else if(map[rogue.y][rogue.x].tile == coast)
-		init_pair(player, COLOR_WHITE, COLOR_COAST);
+	int fg, bg;
+
+	if(rogue.status[invisible] > 0)
+		fg = COLOR_OOV_GREY;
 	else
-		init_pair(player, COLOR_WHITE, COLOR_DARK_BLUE);
+		fg = COLOR_WHITE;
+
+	if(map[rogue.y][rogue.x].tile == edge)
+		bg = COLOR_BLUE;
+	else if(map[rogue.y][rogue.x].tile == door || map[rogue.y][rogue.x].tile == bridge)
+		bg = COLOR_BROWN;
+	else if(map[rogue.y][rogue.x].tile == coast)
+		bg = COLOR_COAST;
+	else
+		bg = COLOR_DARK_BLUE;
+
+	init_pair(player, fg, bg);
 	attron(COLOR_PAIR(player));
 	mvprintw(rogue.y, rogue.x + 25, "@");
 }
@@ -451,16 +493,50 @@ void message(std::string mes)
 	messages_old[1] = mes;
 }
 
+void erase_current_item()
+{
+	//If item has more that one copy, simply decrease its quantity
+	if(items[sel].getQuantity() > 1)
+	{
+		items[sel].setQuantity(items[sel].getQuantity() - 1);
+		return;
+	}
+	// Don't erase an inexistant item
+	if(items.empty())
+		return;
+
+	// Erase an item from the list 
+	if( sel == items.size() - 1 && !items.empty()) 
+	{
+		items.pop_back();
+		// Move cursor to the item above, if exists
+		if(!items.empty())
+			--sel; 
+	}
+	else
+	{
+		items.erase( items.begin() + sel );
+	}
+
+	// Scrolling up when erasing
+	if(offset > 0 && sel - offset == 0)
+	{
+		--sel;
+		--offset;
+	}
+}
+
 void equipment()
 {
 	int _up =  maxy/2 - 10;
 	int _left = (maxx + 24)/2 - 26;
-	unsigned sel = 0, offset = 0, opt = 0;
+	unsigned opt = 0;
 	unsigned opts[] = { 0, 7, 15};
 	bool esc = false;
 
-	while(true)
+	while(!esc)
 	{
+		// Draw the window box
 		attron(COLOR_PAIR(eq1));
 		for(int y = _up; y < _up + 21; y++)
 		{
@@ -469,25 +545,45 @@ void equipment()
 				mvprintw(y, x, " ");
 			}
 		}
+		// Show window name and equipped items
 		mvprintw(_up + 1, _left + 22, "Equipment");
 
 		mvprintw(_up + 3, _left + 2, "Wep: %s", rogue.wep_eq.getName().c_str());
 		mvprintw(_up + 4, _left + 2, "Arm: %s", rogue.arm_eq.getName().c_str());
 		mvprintw(_up + 5, _left + 2, "Spc: %s", rogue.spc_eq.getName().c_str());
 
-		for(unsigned it = 0 + offset; it < items.size(); ++it)
+		mvprintw(_up + 3, _left + 37, "Attack:   %s", std::to_string(rogue.attack).c_str());
+		mvprintw(_up + 4, _left + 37, "Defense:  %s", std::to_string(rogue.defense).c_str());
+		mvprintw(_up + 5, _left + 37, "Strength: %s", std::to_string(rogue.strength).c_str());
+
+
+		// Draw the item list depending on cursor
+		if(!items.empty())
 		{
-			if(it - offset > 8)
-				break;
-			std::string str = items[it].getName();
-			mvprintw(_up + 7 + it - offset, _left + 4, str.c_str());
+			for(unsigned it = 0 + offset; it < items.size(); ++it)
+			{
+				if(it - offset > 8)
+					break;
+				std::string str = items[it].getName();
+				if(items[it].getQuantity() > 1)
+					str += " (" + std::to_string(items[it].getQuantity()) + ")";
+				mvprintw(_up + 7 + it - offset, _left + 4, str.c_str());
+			}
+
+			// Display basic info about selected item
+			mvprintw(_up + 17, _left + 2, "                                             ");
+			mvprintw(_up + 17, _left + 2, items[sel].getSummary().c_str());
+		}
+		else
+		{
+			mvprintw(_up + 7, _left + 4, "Your backpack is empty.");
 		}
 
-		if(items.size() && sel - offset <= 8)
+		// Drawn item cursor
+		if(sel - offset <= 8)
 			mvprintw(_up + 7 + sel - offset, _left + 2, ">");
 
-		mvprintw(_up + 17, _left + 2, "                                             ");
-		mvprintw(_up + 17, _left + 2, items[sel].getSummary().c_str());
+		// Draw actions and action cursor
 		mvprintw(_up + 19, _left + 2, "  Use    Toss    Sort");
 		mvprintw(_up + 19, _left + 2 + opts[opt], ">");
 
@@ -495,53 +591,70 @@ void equipment()
 		switch(key)
 		{
 		case up:
+			// Move item cursor up
+			if(items.empty())
+				break;
 			if(sel)
 				--sel;
 			if((int)(sel - offset) < 0)
 				--offset;
 			break;
 		case down:
+			// Move item cursor down
+			if(items.empty())
+				break;
 			if(sel < items.size() - 1)
 				++sel;
 			if(sel - offset > 8)
 				++offset;
 			break;
 		case left:
+			// Move action cursor left
 			if(opt)
 				--opt;
 			break;
 		case right:
+			// Move action cursor left
 			if(opt < 2)
 				++opt;
 			break;
-		case enter:
+		case enter: case 'w':
+			// Execute selected action
 			switch(opt)
 			{
 			case 0:
+				// Use item
+				if(items.empty())
+					break;
 				items[sel].use();
+				if(items[sel].getName() == "Not equipped")
+					erase_current_item();
 				break;
 
 			case 1:
-				// toss
+				// Toss item
+				if(items.empty())
+					break;
 				items[sel].toss();
+				erase_current_item();
 				break;
 
 			case 2:
-				// sort
+				// Sort backpack
+				if(items.empty())
+					break;
 				//std::sort(items.begin(), items.end());
 				message("Items sorted. Not really");
 				break;
 			}
 			break;
 		case 'e':
+			// Close equipment window 
 			esc  = true;
 		}
-
-		if(esc)
-			break;
 	}
 
-	// Clear it up
+	// Clear the screen up
 	attron(COLOR_PAIR(text));
 	for(int y = _up; y < _up + 21; y++)
 	{
