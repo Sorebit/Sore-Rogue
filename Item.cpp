@@ -259,9 +259,7 @@ bool Item::use()
 					break;
 			}
 			ui();
-			message("befor erase");
 			erase_current_item();
-			message("after erase");
 			break;
 
 		case weapon:
