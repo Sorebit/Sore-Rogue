@@ -26,6 +26,12 @@
 //                 doesn't follow the input directions
 // e.x. weakness - lasts 35 steps; player has lowered defense
 
+// BUGS:
+// If you equip an item which has a quantity of more than 1 you equip
+// all of its quantity so:
+// TODO: unstack 1 item when equipped and stack back, when unequipped
+// 
+
 #include <ncurses.h>
 #include <unistd.h>
 #include <cstdlib>
@@ -221,8 +227,9 @@ void statuses()
 			case poisoned:
 				if(rogue.status[poisoned] && rogue.status[poisoned] % 10 == 0)
 				{
-					rogue.health -= 2;
-					message("You took 2 HP from being poisoned.");
+					char damage = rand() % 3 + 1;
+					rogue.health -= damage;
+					message("You took " + std::to_string((int)damage) + " HP from being poisoned.");
 				}
 				break;
 			case weak:
@@ -283,6 +290,7 @@ int main()
 	Item* w6 = new Item(weapon, orc);
 
 	Item* a1 = new Item(armor, worn);
+	a1->setQuantity(10);
 	Item* a2 = new Item(armor, copper);
 	Item* a3 = new Item(armor, iron);
 	Item* a4 = new Item(armor, steel);
@@ -309,16 +317,16 @@ int main()
 	items.push_back(*w1);
 	items.push_back(*w2);
 	items.push_back(*w3);
-	//items.push_back(*w4);
-	//items.push_back(*w5);
-	//items.push_back(*w6);
+	items.push_back(*w4);
+	items.push_back(*w5);
+	items.push_back(*w6);
 
 	items.push_back(*a1);
 	items.push_back(*a2);
 	items.push_back(*a3);
-	//items.push_back(*a4);
-	//items.push_back(*a5);
-	//items.push_back(*a6);
+	items.push_back(*a4);
+	items.push_back(*a5);
+	items.push_back(*a6);
 
 	items.push_back(*p1);
 	items.push_back(*p2);
@@ -329,16 +337,16 @@ int main()
 
 	items.push_back(*s1);
 	items.push_back(*s2);
-	//items.push_back(*s3);
-	//items.push_back(*s4);
-	//items.push_back(*s5);
-	//items.push_back(*s6);*/
+	items.push_back(*s3);
+	items.push_back(*s4);
+	items.push_back(*s5);
+	items.push_back(*s6);
 
-	//items.push_back(*w1);
-	//items.push_back(*a1);
-	//items.push_back(*p1);
-	//items.push_back(*p2);
-	//items.push_back(*s1);
+	items.push_back(*w1);
+	items.push_back(*a1);
+	items.push_back(*p1);
+	items.push_back(*p2);
+	items.push_back(*s1);
 
 	//rogue.wep_eq = *w1;
 	//rogue.arm_eq = *a1;

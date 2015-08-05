@@ -6,6 +6,7 @@
 Item::Item() 
 {
 	name = "Not equipped";
+	quantity = 1;
 }
 
 Item::Item(std::string _name, int _type, int _id)
@@ -13,12 +14,14 @@ Item::Item(std::string _name, int _type, int _id)
 	name = _name;
 	type = _type;
 	id = _id;
+	quantity = 1;
 }
 
 Item::Item(int _type, int _id)
 {
 	type = _type;
 	id = _id;
+	quantity = 1;
 
 	switch(_type)
 	{
@@ -199,6 +202,15 @@ Item::~Item()
 
 }
 
+bool compare_items(Item item1, Item item2)
+{
+	// type -> id
+	if(item1.getType() != item2.getType())
+		return item1.getType() < item2.getType();
+	
+	return item1.getId() < item2.getId();
+}
+
 int Item::getType() { return type; }
 int Item::getId() { return id; }
 int Item::getValue() { return value; }
@@ -226,11 +238,12 @@ bool Item::use()
 	switch(type)
 	{
 		case consumable:
+			// Apply an effect, depending on potion type
 			switch(id)
 			{
 				case less_heal:
 					rogue.health += 25;
-					rogue.health = (rogue.health % rogue.maxhealth) ? rogue.health : rogue.maxhealth;
+					rogue.health = (rogue.health < rogue.maxhealth) ? rogue.health : rogue.maxhealth;
 					message("You feel a little bit better.");
 					break;
 				case great_heal:

@@ -281,6 +281,9 @@ void ui()
 	mvprintw(maxy + 2, (22 - s.length() ) / 2, "%s", s.c_str());
 	attroff(A_BOLD);
 
+
+	// __DEBUG__
+	mvprintw(1, 0, "%d/%d", rogue.health, rogue.maxhealth);
 }
 
 void ray(float x1, float y1, float x2, float y2)
@@ -496,10 +499,11 @@ void message(std::string mes)
 void erase_current_item()
 {
 	//If item has more that one copy, simply decrease its quantity
-	if(items[sel].getQuantity() > 1)
+	if(items[sel].getQuantity() > 0)
 	{
 		items[sel].setQuantity(items[sel].getQuantity() - 1);
-		return;
+		if(items[sel].getQuantity() > 0)
+			return;
 	}
 	// Don't erase an inexistant item
 	if(items.empty())
@@ -623,11 +627,11 @@ void equipment()
 			switch(opt)
 			{
 			case 0:
-				// Use item
+				// Use item, I think I check too often if items exist
 				if(items.empty())
 					break;
 				items[sel].use();
-				if(items[sel].getName() == "Not equipped")
+				if(!items.empty() && items[sel].getName() == "Not equipped")
 					erase_current_item();
 				break;
 
@@ -643,7 +647,7 @@ void equipment()
 				// Sort backpack
 				if(items.empty())
 					break;
-				//std::sort(items.begin(), items.end());
+				std::sort(items.begin(), items.end(), compare_items);
 				message("Items sorted. Not really");
 				break;
 			}

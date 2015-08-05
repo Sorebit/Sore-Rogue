@@ -50,4 +50,7 @@ class Item
 	Item(std::string _name, int _type, int _value);
 	Item(int _type, int _id, int _value, std::string _name, std::string _summary, std::string _message);
 	~Item();
+
 };
+
+bool compare_items(Item item1, Item item2);
