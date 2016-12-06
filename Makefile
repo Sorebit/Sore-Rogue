@@ -1,11 +1,9 @@
-CC=g++
-CFLAGS=-std=c++11 -Wall -O2
-
-NAME=Rogue
-FILES=Main.cpp Graphics.cpp Architect.cpp Mob.cpp Item.cpp
+NAME ?= Rogue 
 
 all:
-	$(CC) $(CFLAGS) $(FILES) -o $(NAME) -lncurses
+	$(MAKE) -C src all
+	mv src/$(NAME) .
 
 clean:
-	rm -rf *o $(NAME)
+	$(MAKE) -C src clean
+	rm -rf *.o $(NAME)
